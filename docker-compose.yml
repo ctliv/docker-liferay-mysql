@@ -1,0 +1,12 @@
+liferay-web:
+  build: ./liferay
+  ports:
+  - "80:8080"
+  links:
+  - mysql-db
+mysql-db:
+  image: mysql:5.7
+  environment:
+  - MYSQL_ROOT_PASSWORD=adminpwd
+  expose:
+  - "3306"
