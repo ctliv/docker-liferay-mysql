@@ -1,5 +1,11 @@
 # Liferay 6.2.4 GA5 on Tomcat
 #
+# Run mysql:
+#   docker run --name db -e MYSQL_ROOT_PASSWORD=admin -e MYSQL_USER=lportal -e MYSQL_PASSWORD=lportal -e MYSQL_DATABASE=lportal -p 3306:3306 -d mysql:5.7
+#
+# Run Liferay:
+#   docker run --name web -p 80:8080 --link db:mysql-db -d liferay-web
+#
 
 FROM ubuntu:14.04
 
@@ -30,7 +36,8 @@ RUN cd /tmp && \
 	curl -o ${LIFERAY_VER}.zip -k -L -C - \
 	"http://downloads.sourceforge.net/project/lportal/Liferay%20Portal/6.2.4%20GA5/liferay-portal-tomcat-6.2-ce-ga5-20151119152357409.zip" && \
 	unzip ${LIFERAY_VER}.zip -d /opt && \
-	rm ${LIFERAY_VER}.zip
+	rm ${LIFERAY_VER}.zip && \
+	ln -s ${LIFERAY_HOME} /var/liferay
 	
 # Remove Liferay sample application
 RUN rm -fr ${TOMCAT_HOME}/webapps/welcome-theme
@@ -42,20 +49,19 @@ RUN cd /tmp && \
 	mkdir ${TOMCAT_HOME}/webapps/ROOT/WEB-INF/classes/content && \
 	unzip Language-ext_it-62x.zip -d ${TOMCAT_HOME}/webapps/ROOT/WEB-INF/classes/content && \
 	rm Language-ext_it-62x.zip
+	
+# Add configuration files
+ADD conf/* ${LIFERAY_HOME}/
 
-## add config for bdd
+## add config for database
 #RUN /bin/echo -e '\nCATALINA_OPTS="$CATALINA_OPTS -Dexternal-properties=portal-db-mysql.properties"' >> ${TOMCAT_HOME}/bin/setenv.sh
 
-## add configuration liferay file
-#ADD conf/portal-bundle.properties ${LIFERAY_HOME}/portal-bundle.properties
-#ADD conf/portal-bd-MYSQL.properties ${LIFERAY_HOME}/portal-bd-MYSQL.properties
-
-## volumes
-#VOLUME ["/var/liferay-home", "${LIFERAY_HOME}/"]
+# Add default plugins to auto-deploy directory
+ADD deploy/* ${LIFERAY_HOME}/deploy/
 
 # Ports
 EXPOSE 8080
 
-## EXEC
-#CMD ["run"]
-#ENTRYPOINT ["${TOMCAT_HOME}/bin/catalina.sh start && tail -f ${TOMCAT_HOME}/logs/catalina.out"]
+# EXEC
+CMD ["run"]
+ENTRYPOINT ["/opt/liferay-portal-6.2-ce-ga5/tomcat-7.0.62/bin/catalina.sh"]

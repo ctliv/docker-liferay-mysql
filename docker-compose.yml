@@ -1,12 +1,17 @@
 liferay-web:
   build: ./liferay
+  container_name: web
   ports:
   - "80:8080"
   links:
-  - mysql-db
+  - "db:mysql-db"
 mysql-db:
   image: mysql:5.7
+  container_name: db
   environment:
   - MYSQL_ROOT_PASSWORD=adminpwd
-  expose:
-  - "3306"
+  - MYSQL_USER=lportal
+  - MYSQL_PASSWORD=lportal
+  - MYSQL_DATABASE=lportal
+  ports:
+  - "3306:3306"
