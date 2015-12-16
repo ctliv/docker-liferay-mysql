@@ -1,5 +1,5 @@
 liferay-web:
-  build: ./liferay
+  build: .
   container_name: web
   ports:
   - "80:8080"
