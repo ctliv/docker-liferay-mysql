@@ -1,10 +1,10 @@
 # Liferay 6.2.4 GA5 on Tomcat
 #
 # Run mysql:
-#   docker run --name db -e MYSQL_ROOT_PASSWORD=admin -e MYSQL_USER=lportal -e MYSQL_PASSWORD=lportal -e MYSQL_DATABASE=lportal -p 3306:3306 -d mysql:5.7
+#   docker run --name lep-db -e MYSQL_ROOT_PASSWORD=admin -e MYSQL_USER=lportal -e MYSQL_PASSWORD=lportal -e MYSQL_DATABASE=lportal -d mysql:5.7
 #
 # Run Liferay:
-#   docker run --name web -p 80:8080 --link db:mysql-db -d liferay-web
+#   docker run --name lep-as -p 80:8080 --link lep-db:mysql-db -d ctliv/liferay:6.2-GA5
 #
 
 FROM ubuntu:14.04
