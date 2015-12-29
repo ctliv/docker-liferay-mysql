@@ -1,4 +1,4 @@
-liferay-web:
+lep-as:
   build: .
   container_name: lep-as
   ports:

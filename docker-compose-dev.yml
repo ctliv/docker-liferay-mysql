@@ -1,10 +1,11 @@
-liferay-web:
+lep-as:
   build: .
   container_name: lep-as
   ports:
   - "80:8080"
+  - "8999:8999"
   volumes:
-  - ./deploy:/opt/liferay-portal-6.2-ce-ga5/deploy
+  - ./deploy-run:/opt/liferay-portal-6.2-ce-ga5/deploy
   links:
   - "lep-db:mysql-db"
 lep-db:

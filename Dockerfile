@@ -53,14 +53,18 @@ RUN cd /tmp && \
 # Add configuration files
 ADD conf/* ${LIFERAY_HOME}/
 
-## add config for database
+# Add default plugins to auto-deploy directory
+ADD deploy ${LIFERAY_HOME}/
+
+## (disabled) Add config for database
 #RUN /bin/echo -e '\nCATALINA_OPTS="$CATALINA_OPTS -Dexternal-properties=portal-db-mysql.properties"' >> ${TOMCAT_HOME}/bin/setenv.sh
 
-# Add default plugins to auto-deploy directory
-ADD deploy/* ${LIFERAY_HOME}/deploy/
+# Add remote debug hook
+RUN /bin/echo -e '\nCATALINA_OPTS="$CATALINA_OPTS -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=8999"' >> ${TOMCAT_HOME}/bin/setenv.sh
 
 # Ports
 EXPOSE 8080
+EXPOSE 8999
 
 # EXEC
 CMD ["run"]
