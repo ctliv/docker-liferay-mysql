@@ -18,29 +18,28 @@ RUN groupadd -r tomcat && useradd -r -g tomcat tomcat
 RUN apt-get update && \
     apt-get install -y openjdk-7-jdk && \
 	apt-get clean
-ENV JAVA_HOME /usr/lib/jvm/java-7-openjdk-amd64
-ENV PATH $PATH:$JAVA_HOME/bin
-ENV JRE_HOME $JAVA_HOME/jre
+ENV JAVA_HOME=/usr/lib/jvm/java-7-openjdk-amd64
+ENV JRE_HOME=$JAVA_HOME/jre 
+ENV PATH=$PATH:$JAVA_HOME/bin
 
 # Install curl+unzip
 RUN apt-get update && \
 	apt-get install -y curl unzip && \
 	apt-get clean
 	
-# Install liferay
+# Install liferay (removing sample application "welcome-theme"). Set run count (LIFERAY_RUN) to 0
 ENV LIFERAY_VER=liferay-portal-6.2-ce-ga5
-ENV LIFERAY_HOME=/opt/${LIFERAY_VER}
+ENV LIFERAY_HOME=/opt/${LIFERAY_VER} 
 ENV TOMCAT_VER=tomcat-7.0.62 
-ENV TOMCAT_HOME=${LIFERAY_HOME}/${TOMCAT_VER}
+ENV TOMCAT_HOME=${LIFERAY_HOME}/${TOMCAT_VER} 
+ENV LIFERAY_RUN=0
 RUN cd /tmp && \
 	curl -o ${LIFERAY_VER}.zip -k -L -C - \
 	"http://downloads.sourceforge.net/project/lportal/Liferay%20Portal/6.2.4%20GA5/liferay-portal-tomcat-6.2-ce-ga5-20151119152357409.zip" && \
 	unzip ${LIFERAY_VER}.zip -d /opt && \
 	rm ${LIFERAY_VER}.zip && \
-	ln -s ${LIFERAY_HOME} /var/liferay
-	
-# Remove Liferay sample application
-RUN rm -fr ${TOMCAT_HOME}/webapps/welcome-theme
+	mkdir -p ${LIFERAY_HOME}/deploy && \
+	rm -fr ${TOMCAT_HOME}/webapps/welcome-theme
 
 # Add italian language files
 RUN cd /tmp && \
@@ -50,22 +49,26 @@ RUN cd /tmp && \
 	unzip Language-ext_it-62x.zip -d ${TOMCAT_HOME}/webapps/ROOT/WEB-INF/classes/content && \
 	rm Language-ext_it-62x.zip
 	
-# Add configuration files
+# Add configuration files to liferay home
 ADD conf/* ${LIFERAY_HOME}/
 
 # Add default plugins to auto-deploy directory
-ADD deploy ${LIFERAY_HOME}/
+ADD deploy ${LIFERAY_HOME}/deploy/
 
-## (disabled) Add config for database
-#RUN /bin/echo -e '\nCATALINA_OPTS="$CATALINA_OPTS -Dexternal-properties=portal-db-mysql.properties"' >> ${TOMCAT_HOME}/bin/setenv.sh
+# Add startup scripts
+ADD script /opt/script/
 
 # Add remote debug hook
 RUN /bin/echo -e '\nCATALINA_OPTS="$CATALINA_OPTS -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=8999"' >> ${TOMCAT_HOME}/bin/setenv.sh
 
+# Add symlinks links to HOME dirs
+RUN ln -fs ${LIFERAY_HOME} /opt/liferay && \
+	ln -fs ${TOMCAT_HOME} /opt/tomcat
+
 # Ports
-EXPOSE 8080
-EXPOSE 8999
+EXPOSE 8080 8999 1099 18099
 
 # EXEC
 CMD ["run"]
-ENTRYPOINT ["/opt/liferay-portal-6.2-ce-ga5/tomcat-7.0.62/bin/catalina.sh"]
+#ENTRYPOINT ["/opt/liferay-portal-6.2-ce-ga5/tomcat-7.0.62/bin/catalina.sh"]
+ENTRYPOINT ["/opt/script/start.sh"]

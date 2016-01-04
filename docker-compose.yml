@@ -1,9 +1,16 @@
 lep-as:
   build: .
   container_name: lep-as
+  dns:
+  - 8.8.8.8
+  - 8.8.4.4
+  environment:
+  - LIFERAY_DEBUG=1
   ports:
   - "80:8080"
   - "8999:8999"
+  - "1099:1099"
+  - "18099:18099"
   volumes:
   - ./deploy-run:/opt/liferay-portal-6.2-ce-ga5/deploy
   links:
@@ -11,6 +18,9 @@ lep-as:
 lep-db:
   image: mysql:5.7
   container_name: lep-db
+  dns:
+  - 8.8.8.8
+  - 8.8.4.4
   ports:
   - "3306:3306"
   environment:
