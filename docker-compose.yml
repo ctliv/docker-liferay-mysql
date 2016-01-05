@@ -1,5 +1,6 @@
 lep-as:
-  build: .
+  #build: .
+  image: ctliv/liferay:dev
   container_name: lep-as
   dns:
   - 8.8.8.8
@@ -10,7 +11,6 @@ lep-as:
   - "80:8080"
   - "8999:8999"
   - "1099:1099"
-  - "18099:18099"
   volumes:
   - ./deploy-run:/opt/liferay-portal-6.2-ce-ga5/deploy
   links:

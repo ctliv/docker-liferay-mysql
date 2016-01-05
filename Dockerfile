@@ -12,7 +12,7 @@ FROM ubuntu:14.04
 MAINTAINER Cristiano Toncelli <ct.livorno@gmail.com>
 
 # Create user and group
-RUN groupadd -r tomcat && useradd -r -g tomcat tomcat
+# RUN groupadd -r tomcat && useradd -r -g tomcat tomcat
 
 # Install java
 RUN apt-get update && \
@@ -27,19 +27,20 @@ RUN apt-get update && \
 	apt-get install -y curl unzip && \
 	apt-get clean
 	
-# Install liferay (removing sample application "welcome-theme"). Set run count (LIFERAY_RUN) to 0
+# Install liferay (removing sample application "welcome-theme")
+ENV LIFERAY_BASE=/opt
 ENV LIFERAY_VER=liferay-portal-6.2-ce-ga5
-ENV LIFERAY_HOME=/opt/${LIFERAY_VER} 
+ENV LIFERAY_HOME=${LIFERAY_BASE}/${LIFERAY_VER} 
 ENV TOMCAT_VER=tomcat-7.0.62 
 ENV TOMCAT_HOME=${LIFERAY_HOME}/${TOMCAT_VER} 
-ENV LIFERAY_RUN=0
 RUN cd /tmp && \
 	curl -o ${LIFERAY_VER}.zip -k -L -C - \
 	"http://downloads.sourceforge.net/project/lportal/Liferay%20Portal/6.2.4%20GA5/liferay-portal-tomcat-6.2-ce-ga5-20151119152357409.zip" && \
 	unzip ${LIFERAY_VER}.zip -d /opt && \
 	rm ${LIFERAY_VER}.zip && \
+	rm -fr ${TOMCAT_HOME}/webapps/welcome-theme && \
 	mkdir -p ${LIFERAY_HOME}/deploy && \
-	rm -fr ${TOMCAT_HOME}/webapps/welcome-theme
+	mkdir -p ${LIFERAY_BASE}/script
 
 # Add italian language files
 RUN cd /tmp && \
@@ -53,22 +54,21 @@ RUN cd /tmp && \
 ADD conf/* ${LIFERAY_HOME}/
 
 # Add default plugins to auto-deploy directory
-ADD deploy ${LIFERAY_HOME}/deploy/
+ADD deploy/* ${LIFERAY_HOME}/deploy/
 
-# Add startup scripts
-ADD script /opt/script/
+# Add startup scripts and make executable
+ADD script/* ${LIFERAY_BASE}/script/
+RUN chmod +x ${LIFERAY_BASE}/script/*.sh
 
-# Add remote debug hook
-RUN /bin/echo -e '\nCATALINA_OPTS="$CATALINA_OPTS -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=8999"' >> ${TOMCAT_HOME}/bin/setenv.sh
-
-# Add symlinks links to HOME dirs
-RUN ln -fs ${LIFERAY_HOME} /opt/liferay && \
-	ln -fs ${TOMCAT_HOME} /opt/tomcat
+# Add symlinks to HOME dirs
+RUN ln -fs ${LIFERAY_HOME} ${LIFERAY_BASE}/liferay && \
+	ln -fs ${TOMCAT_HOME} ${LIFERAY_BASE}/tomcat
 
 # Ports
-EXPOSE 8080 8999 1099 18099
+#EXPOSE 8080 8999 1099
+EXPOSE 8080
 
 # EXEC
-CMD ["run"]
+#CMD ["run"]
 #ENTRYPOINT ["/opt/liferay-portal-6.2-ce-ga5/tomcat-7.0.62/bin/catalina.sh"]
-ENTRYPOINT ["/opt/script/start.sh"]
+CMD ["/opt/script/start.sh"]
