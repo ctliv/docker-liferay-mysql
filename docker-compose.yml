@@ -7,10 +7,14 @@ lep-as:
   - 8.8.4.4
   environment:
   - LIFERAY_DEBUG=1
+  expose:
+  - "22"
+  - "8080"
+  - "8999"
   ports:
+  - "2222:22"
   - "80:8080"
   - "8999:8999"
-  - "1099:1099"
   volumes:
   - ./deploy-run:/opt/liferay-portal-6.2-ce-ga5/deploy
   links:

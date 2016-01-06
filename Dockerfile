@@ -11,9 +11,15 @@ FROM ubuntu:14.04
 
 MAINTAINER Cristiano Toncelli <ct.livorno@gmail.com>
 
-# Create user and group
+# Users and groups
 # RUN groupadd -r tomcat && useradd -r -g tomcat tomcat
+RUN echo "root:Docker!" | chpasswd
 
+# Environment configuration: install curl unzip ssh
+RUN apt-get update && \
+	apt-get install -y curl unzip ssh && \
+	apt-get clean
+	
 # Install java
 RUN apt-get update && \
     apt-get install -y openjdk-7-jdk && \
@@ -22,11 +28,6 @@ ENV JAVA_HOME=/usr/lib/jvm/java-7-openjdk-amd64
 ENV JRE_HOME=$JAVA_HOME/jre 
 ENV PATH=$PATH:$JAVA_HOME/bin
 
-# Install curl+unzip
-RUN apt-get update && \
-	apt-get install -y curl unzip && \
-	apt-get clean
-	
 # Install liferay (removing sample application "welcome-theme")
 ENV LIFERAY_BASE=/opt
 ENV LIFERAY_VER=liferay-portal-6.2-ce-ga5
@@ -65,10 +66,7 @@ RUN ln -fs ${LIFERAY_HOME} ${LIFERAY_BASE}/liferay && \
 	ln -fs ${TOMCAT_HOME} ${LIFERAY_BASE}/tomcat
 
 # Ports
-#EXPOSE 8080 8999 1099
 EXPOSE 8080
 
 # EXEC
-#CMD ["run"]
-#ENTRYPOINT ["/opt/liferay-portal-6.2-ce-ga5/tomcat-7.0.62/bin/catalina.sh"]
 CMD ["/opt/script/start.sh"]
