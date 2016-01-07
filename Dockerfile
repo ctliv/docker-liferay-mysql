@@ -50,6 +50,10 @@ RUN cd /tmp && \
 	mkdir ${TOMCAT_HOME}/webapps/ROOT/WEB-INF/classes/content && \
 	unzip Language-ext_it-62x.zip -d ${TOMCAT_HOME}/webapps/ROOT/WEB-INF/classes/content && \
 	rm Language-ext_it-62x.zip
+
+# Add symlinks to HOME dirs
+RUN ln -fs ${LIFERAY_HOME} ${LIFERAY_BASE}/liferay && \
+	ln -fs ${TOMCAT_HOME} ${LIFERAY_BASE}/tomcat
 	
 # Add configuration files to liferay home
 ADD conf/* ${LIFERAY_HOME}/
@@ -57,13 +61,9 @@ ADD conf/* ${LIFERAY_HOME}/
 # Add default plugins to auto-deploy directory
 ADD deploy/* ${LIFERAY_HOME}/deploy/
 
-# Add startup scripts and make executable
+# Add startup scripts
 ADD script/* ${LIFERAY_BASE}/script/
 RUN chmod +x ${LIFERAY_BASE}/script/*.sh
-
-# Add symlinks to HOME dirs
-RUN ln -fs ${LIFERAY_HOME} ${LIFERAY_BASE}/liferay && \
-	ln -fs ${TOMCAT_HOME} ${LIFERAY_BASE}/tomcat
 
 # Ports
 EXPOSE 8080

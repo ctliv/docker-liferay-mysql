@@ -7,16 +7,19 @@ lep-as:
   - 8.8.4.4
   environment:
   - LIFERAY_DEBUG=1
+  - VM_HOSTNAME=vm-default
   expose:
   - "22"
+  - "1099"
   - "8080"
   - "8999"
   ports:
   - "2222:22"
+  - "1099:1099"
   - "80:8080"
   - "8999:8999"
   volumes:
-  - ./deploy-run:/opt/liferay-portal-6.2-ce-ga5/deploy
+  - ./deploy-run:/opt/liferay/deploy
   links:
   - "lep-db:mysql-db"
 lep-db:

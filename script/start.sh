@@ -17,25 +17,38 @@ echo $LIFERAY_RUN > $FILE
 #fi
 
 if [[ $LIFERAY_DEBUG -eq 1 ]]; then
-	#Creates policy file
+	if [ -z "$VM_HOSTNAME" ]; then 
+	  VM_HOSTNAME=localhost
+	fi
+	
+	#(disabled) Start RMI registry on default port (1099)
+	#rmiregistry -J-Djava.rmi.server.codebase=file:${JAVA_HOME}/lib/tools.jar &
+
+	#Creates jstatd policy file
 	policy=$(dirname $0)/jstatd.all.policy
 	echo "grant codebase \"file:${JAVA_HOME}/lib/tools.jar\" {" > $policy
 	echo "  permission java.security.AllPermission;" >> $policy
-	echo "};" >> $policy
-
-	#Launch jstatd for remote JVM inspection using JVisualVM
-	jstatd -J-Djava.security.policy=$(dirname $0)/jstatd.all.policy &
+	echo "};" >> $policy	
+	#(disabled) Launch jstatd (on port 1100) for remote JVM inspection using JVisualVM
+	#jstatd -p 1098 -J-Djava.security.policy=$(dirname $0)/jstatd.all.policy -J-Djava.net.preferIPv4Stack=true -J-Djava.rmi.server.hostname=${VM_HOSTNAME} &
 	
-	#Configure ssh
+	#Add explicit JMX endpoint (on port 1099) to Tomcat configuration
+	#/bin/echo -e '\nCATALINA_OPTS="$CATALINA_OPTS -Dcom.sun.management.jmxremote.port=1099 -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false"' >> ${TOMCAT_HOME}/bin/setenv.sh
+	/bin/echo -e '\nCATALINA_OPTS="$CATALINA_OPTS -Dcom.sun.management.jmxremote=true"'               >> ${TOMCAT_HOME}/bin/setenv.sh
+	/bin/echo -e '\nCATALINA_OPTS="$CATALINA_OPTS -Dcom.sun.management.jmxremote.ssl=false"'          >> ${TOMCAT_HOME}/bin/setenv.sh
+	/bin/echo -e '\nCATALINA_OPTS="$CATALINA_OPTS -Dcom.sun.management.jmxremote.authenticate=false"' >> ${TOMCAT_HOME}/bin/setenv.sh
+	/bin/echo -e '\nCATALINA_OPTS="$CATALINA_OPTS -Dcom.sun.management.jmxremote.port=1099"'          >> ${TOMCAT_HOME}/bin/setenv.sh
+	/bin/echo -e '\nCATALINA_OPTS="$CATALINA_OPTS -Djava.rmi.server.hostname=${VM_HOSTNAME}"'         >> ${TOMCAT_HOME}/bin/setenv.sh
+	/bin/echo -e '\nCATALINA_OPTS="$CATALINA_OPTS -Dcom.sun.management.jmxremote.rmi.port=1099"'      >> ${TOMCAT_HOME}/bin/setenv.sh
+	
+	#Configure ssh for establishing tunnel
 	sed -i 's/PermitRootLogin without-password/PermitRootLogin yes/' /etc/ssh/sshd_config
+	sed -i 's/PubkeyAuthentication yes/PubkeyAuthentication no/' /etc/ssh/sshd_config
 	# SSH login fix. Otherwise user is kicked off after login
 	sed 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so@g' -i /etc/pam.d/sshd
 	
 	#Launch ssh daemon
 	service ssh start
-	
-	#Add explicit JMX endpoint to Tomcat configuration
-	/bin/echo -e '\nCATALINA_OPTS="$CATALINA_OPTS -Dcom.sun.management.jmxremote.port=10099 -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false"' >> ${TOMCAT_HOME}/bin/setenv.sh
 	
 	#Launch catalina (with debugging)
 	export JPDA_ADDRESS=8999
