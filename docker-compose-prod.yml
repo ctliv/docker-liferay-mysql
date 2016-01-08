@@ -1,6 +1,9 @@
 lep-as:
-  build: .
+  image: ctliv/liferay:6.2-GA5
   container_name: lep-as
+  dns:
+  - 8.8.8.8
+  - 8.8.4.4
   ports:
   - "80:8080"
   links:
@@ -8,6 +11,11 @@ lep-as:
 lep-db:
   image: mysql:5.7
   container_name: lep-db
+  dns:
+  - 8.8.8.8
+  - 8.8.4.4
+  ports:
+  - "3306:3306"
   environment:
   - MYSQL_ROOT_PASSWORD=adminpwd
   - MYSQL_USER=lportal

@@ -1,25 +1,19 @@
 lep-as:
-  #build: .
-  image: ctliv/liferay:dev
+  image: ctliv/liferay:6.2-GA5
   container_name: lep-as
   dns:
   - 8.8.8.8
   - 8.8.4.4
   environment:
   - LIFERAY_DEBUG=1
-  - VM_HOSTNAME=vm-default
-  expose:
-  - "22"
-  - "1099"
-  - "8080"
-  - "8999"
+  - VM_HOST=vm-default
   ports:
   - "2222:22"
   - "1099:1099"
   - "80:8080"
   - "8999:8999"
   volumes:
-  - ./deploy-run:/opt/liferay/deploy
+  - ./deploy-run:/var/liferay/deploy
   links:
   - "lep-db:mysql-db"
 lep-db:
