@@ -8,13 +8,16 @@ fi
 LIFERAY_RUN=$((LIFERAY_RUN + 1))
 echo $LIFERAY_RUN > $FILE
 
+#Stops ssh daemon
+service ssh stop
+
 if [[ $LIFERAY_DEBUG -eq 1 ]]; then
 	#Configure and launch ssh
 	sed -i 's/PermitRootLogin without-password/PermitRootLogin yes/' /etc/ssh/sshd_config
 	sed -i 's/PubkeyAuthentication yes/PubkeyAuthentication no/' /etc/ssh/sshd_config
 	# SSH login fix. Otherwise user is kicked off after login
 	sed 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so@g' -i /etc/pam.d/sshd	
-	#Launch ssh daemon
+	#Start ssh daemon
 	service ssh start
 	
 	#Define default host for JMX debugging 
