@@ -38,7 +38,7 @@
 #
 #   Point browser to docker machine ip (port 80)
 
-FROM ubuntu:14.04
+FROM ubuntu:xenial
 
 MAINTAINER Cristiano Toncelli <ct.livorno@gmail.com>
 
@@ -51,11 +51,11 @@ RUN apt-get update && \
 	apt-get install -y curl unzip ssh && \
 	apt-get clean
 	
-# Install Java 7 JDK 
+# Install Java 8 JDK 
 RUN apt-get update && \
-    apt-get install -y openjdk-7-jdk && \
+    apt-get install -y openjdk-8-jdk && \
 	apt-get clean
-ENV JAVA_HOME=/usr/lib/jvm/java-7-openjdk-amd64
+ENV JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
 ENV JRE_HOME=$JAVA_HOME/jre 
 ENV PATH=$PATH:$JAVA_HOME/bin
 

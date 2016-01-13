@@ -1,5 +1,5 @@
 lep-as:
-  image: ctliv/liferay:6.2-GA5
+  image: ctliv/liferay:6.2
   container_name: lep-as
   dns:
   - 8.8.8.8
