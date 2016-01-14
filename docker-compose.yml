@@ -15,7 +15,7 @@ lep-as:
   volumes:
   - ./deploy-run:/var/liferay/deploy
   links:
-  - "lep-db:mysql-db"
+  - "lep-db"
 lep-db:
   image: mysql:5.7
   container_name: lep-db

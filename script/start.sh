@@ -11,9 +11,19 @@ echo $LIFERAY_RUN > $FILE
 #Stops ssh daemon
 service ssh stop
 
+#On first run only, if LIFERAY_NOWIZARD is not set, removes wizard properties file (enable wizard)
+if [[ $LIFERAY_RUN -eq 1 ]]; then
+	if [[ $LIFERAY_NOWIZARD -ne 1 ]]; then
+		rm -f ${LIFERAY_HOME}/portal-setup-wizard.properties
+	else
+		#Sets "liferay.home" wizard property
+		echo "liferay.home=$LIFERAY_HOME" >> ${LIFERAY_HOME}/portal-setup-wizard.properties
+	fi
+fi
+
 if [[ $LIFERAY_DEBUG -eq 1 ]]; then
 	#Configure and launch ssh
-	sed -i 's/PermitRootLogin without-password/PermitRootLogin yes/' /etc/ssh/sshd_config
+	sed -i 's/PermitRootLogin .*/PermitRootLogin yes/' /etc/ssh/sshd_config
 	sed -i 's/PubkeyAuthentication yes/PubkeyAuthentication no/' /etc/ssh/sshd_config
 	# SSH login fix. Otherwise user is kicked off after login
 	sed 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so@g' -i /etc/pam.d/sshd	

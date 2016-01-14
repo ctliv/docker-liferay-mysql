@@ -7,7 +7,7 @@ lep-as:
   ports:
   - "80:8080"
   links:
-  - "lep-db:mysql-db"
+  - "lep-db"
 lep-db:
   image: mysql:5.7
   container_name: lep-db

@@ -4,7 +4,7 @@
 #
 # Pulling:
 #
-#      docker pull ctliv/liferay:6.2-GA5
+#      docker pull ctliv/liferay:6.2
 #
 # Launching using "docker run":
 #
@@ -14,13 +14,15 @@
 #        -p 3306:3306
 #
 #   B) Run Liferay:
-#        docker run --name lep-as -p 80:8080 --link lep-db:mysql-db -d ctliv/liferay:6.2-GA5
+#        docker run --name lep-as -p 80:8080 --link lep-db -d ctliv/liferay:6.2
 #      To enable development mode (SSH daemon + JMX monitoring + dt_socket debugging) add options:
 #        -e LIFERAY_DEBUG=1 -p 2222:22 -p 1099:1099 -p 8999:8999 
 #      If docker daemon does not run on localhost (e.g.: VirtualBox), JMX monitoring needs option:
 #        -e VM_HOST=<docker daemon hostname>
 #      To mount liferay deploy directory on localhost add:
 #        -v /absolute/path/to/local/folder:/var/liferay/deploy
+#      To prevent Liferay wizard to run (e.g.: using an already set DB) add:
+#        -e LIFERAY_NOWIZARD=1 
 #
 # Launching using "docker-compose":
 #
@@ -46,9 +48,9 @@ MAINTAINER Cristiano Toncelli <ct.livorno@gmail.com>
 # RUN groupadd -r tomcat && useradd -r -g tomcat tomcat
 RUN echo "root:Docker!" | chpasswd
 
-# Environment: install curl unzip ssh
+# Set environment: curl unzip ssh vim
 RUN apt-get update && \
-	apt-get install -y curl unzip ssh && \
+	apt-get install -y curl unzip ssh vim && \
 	apt-get clean
 	
 # Install Java 8 JDK 
