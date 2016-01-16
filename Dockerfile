@@ -1,4 +1,4 @@
-# Docker image for Liferay 6.2.4 GA5 on Tomcat with mysql DB (using two separate containers)
+# Docker image for Liferay 6.2.4 GA6 on Tomcat with mysql DB (using two separate containers)
 #
 # The image is available in docker registry: https://hub.docker.com/r/ctliv/liferay/
 #
@@ -63,13 +63,13 @@ ENV PATH=$PATH:$JAVA_HOME/bin
 
 # Install liferay (removing sample application "welcome-theme")
 ENV LIFERAY_BASE=/opt
-ENV LIFERAY_VER=liferay-portal-6.2-ce-ga5
+ENV LIFERAY_VER=liferay-portal-6.2-ce-ga6
 ENV LIFERAY_HOME=${LIFERAY_BASE}/${LIFERAY_VER} 
 ENV TOMCAT_VER=tomcat-7.0.62 
 ENV TOMCAT_HOME=${LIFERAY_HOME}/${TOMCAT_VER} 
 RUN cd /tmp && \
 	curl -o ${LIFERAY_VER}.zip -k -L -C - \
-	"http://downloads.sourceforge.net/project/lportal/Liferay%20Portal/6.2.4%20GA5/liferay-portal-tomcat-6.2-ce-ga5-20151119152357409.zip" && \
+	"http://sourceforge.net/projects/lportal/files/Liferay%20Portal/6.2.5%20GA6/liferay-portal-tomcat-6.2-ce-ga6-20160112152609836.zip" && \
 	unzip ${LIFERAY_VER}.zip -d /opt && \
 	rm ${LIFERAY_VER}.zip && \
 	rm -fr ${TOMCAT_HOME}/webapps/welcome-theme && \
