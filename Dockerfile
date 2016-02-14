@@ -38,7 +38,7 @@
 #
 # Use:
 #
-#   Point browser to docker machine ip (port 80)
+#   Point browser to docker machine ip (port 80 or port 443)
 
 FROM ubuntu:xenial
 
@@ -50,7 +50,7 @@ RUN echo "root:Docker!" | chpasswd
 
 # Set environment: curl unzip ssh vim
 RUN apt-get update && \
-	apt-get install -y curl unzip ssh vim && \
+	apt-get install -y curl unzip ssh vim net-tools && \
 	apt-get clean
 	
 # Install Java 8 JDK 
@@ -99,7 +99,7 @@ ADD script/* ${LIFERAY_BASE}/script/
 RUN chmod +x ${LIFERAY_BASE}/script/*.sh
 
 # Ports
-EXPOSE 8080
+EXPOSE 8080 8443
 
 # EXEC
 CMD ["/opt/script/start.sh"]
