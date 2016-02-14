@@ -1,1 +1,1 @@
-docker run --name lep-as -p 80:8080 --link lep-db $@ -d ctliv/liferay:6.2
+docker run --name lep-as -p 8443:443 --link lep-db $@ -d ctliv/liferay:6.2

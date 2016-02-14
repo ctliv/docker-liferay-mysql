@@ -19,6 +19,10 @@ if [[ $LIFERAY_RUN -eq 1 ]]; then
 		#Sets "liferay.home" wizard property
 		echo "liferay.home=$LIFERAY_HOME" >> ${LIFERAY_HOME}/portal-setup-wizard.properties
 	fi
+	
+	#Enables SSL using untrusted local certificate
+	$JAVA_HOME/bin/keytool -genkey -alias tomcat -keyalg RSA -storepass changeit -keypass changeit -dname "CN=CT, OU=Dev, O=JpaEx, L=LI, ST=LI, C=IT"	
+	sed -i -z 's/<!--\s*\(<Connector\s*port="8443".*sslProtocol="TLS"\s*\/>\)\s*-->/\1/' ${TOMCAT_HOME}/conf/server.xml
 fi
 
 if [[ $LIFERAY_DEBUG -eq 1 ]]; then

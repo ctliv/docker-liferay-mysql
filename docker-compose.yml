@@ -11,6 +11,7 @@ lep-as:
   - "2222:22"
   - "1099:1099"
   - "80:8080"
+  - "8443:443"
   - "8999:8999"
   volumes:
   - ./deploy-run:/var/liferay/deploy
