@@ -6,9 +6,9 @@ MAINTAINER Cristiano Toncelli <ct.livorno@gmail.com>
 # RUN groupadd -r tomcat && useradd -r -g tomcat tomcat
 RUN echo "root:Docker!" | chpasswd
 
-# Set environment: curl unzip ssh vim
+# Install packages
 RUN apt-get update && \
-	apt-get install -y curl unzip ssh vim net-tools && \
+	apt-get install -y curl unzip ssh vim net-tools git && \
 	apt-get clean
 	
 # Install Java 8 JDK 
