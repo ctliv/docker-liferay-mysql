@@ -1,1 +1,1 @@
-$(dirname $(realpath $0))/launch-as.sh -e LIFERAY_NOWIZARD=1
+$(dirname $(realpath $0))/run-as.sh -e LIFERAY_NOWIZARD=1
