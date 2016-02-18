@@ -11,6 +11,9 @@ RUN apt-get update && \
 	apt-get install -y curl unzip ssh vim net-tools git && \
 	apt-get clean
 	
+# Export TERM as "xterm"
+RUN echo -e "\nexport TERM=xterm" >> ~/.bashrc
+	
 # Install Java 8 JDK 
 RUN apt-get update && \
     apt-get install -y openjdk-8-jdk && \
