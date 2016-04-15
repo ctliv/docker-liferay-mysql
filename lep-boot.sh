@@ -3,11 +3,11 @@
 showhelp () {
 	echo "USAGE: lep-boot.sh [options]"
 	echo "OPTIONS:"
-	echo "    -d          Startup DB (default: false, default image: \"mysql:5.7\")"
-	echo "    -a          Startup AS (default: false, default image: \"ctliv/liferay:7.0\")"
-	echo "    -n          Avoid AS startup wizard (default: false)"
-	echo "    -h <host>   Public hostname of the VM (default: \"lep-dev.dynu.com\")"
-	echo "    -s          Stops (if running) and remove container(s)"
+	echo "    -d         Startup DB (image: \"mysql:5.7\")"
+	echo "    -a         Startup AS (image: \"ctliv/liferay:6.2\")"
+	echo "    -n         Avoid AS startup wizard (default: false)"
+	echo "    -h <host>  Public hostname of the VM (default: \"lep-dev.dynu.com\")"
+	echo "    -c         Cleanup: stops (if running) and remove container(s)"
 	echo
 	echo "NOTE:"
 	echo "    At least -d or -a must be specified"
@@ -18,11 +18,11 @@ showhelp () {
 OPTIND=1
 db=0
 as=0
-hostname="lep-dev.dynu.com"
+host=""
 nowizard=0
-sc=0
+cleanup=0
 
-while getopts "dansh:" opt; do
+while getopts "danch:" opt; do
 	case "$opt" in
 	d)	db=1
 		;;
@@ -30,9 +30,9 @@ while getopts "dansh:" opt; do
 		;;
 	n)	nowizard=1
 		;;
-	s)	sc=1
+	c)	cleanup=1
 		;;
-	h)	hostname=$OPTARG
+	h)	host=$OPTARG
 	esac
 done
 
@@ -44,7 +44,12 @@ if [ $db -eq 0 ] && [ $as -eq 0 ]; then
 	showhelp
 fi
 
-if [ $sc -eq 1 ]; then
+#Default values
+if [ "$host" == "" ]; then
+	host="lep-dev.dynu.com"
+fi
+
+if [ $cleanup -eq 1 ]; then
 	if [ $as -eq 1 ]; then
 		docker stop lep-as
 		docker rm lep-as
@@ -56,10 +61,10 @@ if [ $sc -eq 1 ]; then
 fi
 
 if [ $db -eq 1 ]; then
-	"$(dirname $(readlink -f $0))/run-db.sh"
+	docker run --name lep-db -p 3306:3306 -e MYSQL_ROOT_PASSWORD=adminpwd -e MYSQL_USER=lportal -e MYSQL_PASSWORD=lportal -e MYSQL_DATABASE=lportal -d mysql:5.7
 fi
 
 if [ $as -eq 1 ]; then
-	"$(dirname $(readlink -f $0))/run-as.sh" -e VM_HOST=${hostname} -e LIFERAY_NOWIZARD=${nowizard}
+	docker run --name lep-as -p 80:8080 -p 443:8443 -p 2222:22 -p 1099:1099 -p 8999:8999 --link lep-db -e LIFERAY_DEBUG=1 -v /$(dirname $(readlink -f $0))/deploy-run:/var/liferay/deploy -v /$(dirname $(readlink -f $0))/../rainbow/rainbow-operativo/db:/opt/data -e VM_HOST=${host} -e LIFERAY_NOWIZARD=${nowizard} -d ctliv/liferay:7.0
 fi
 
