@@ -22,7 +22,7 @@ host=""
 nowizard=0
 cleanup=0
 
-while getopts "d:a:nch:" opt; do
+while getopts "danch:" opt; do
 	case "$opt" in
 	d)	db=1
 		;;
