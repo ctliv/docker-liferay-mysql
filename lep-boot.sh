@@ -30,7 +30,7 @@ while getopts "danch:" opt; do
 		;;
 	n)	nowizard=1
 		;;
-	s)	cleanup=1
+	c)	cleanup=1
 		;;
 	h)	host=$OPTARG
 	esac
