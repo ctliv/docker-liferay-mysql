@@ -18,7 +18,7 @@ showhelp () {
 OPTIND=1
 db=0
 as=0
-host=""
+host=$(wget http://ipinfo.io/ip -qO -)
 nowizard=0
 cleanup=0
 
