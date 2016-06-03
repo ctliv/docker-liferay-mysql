@@ -6,7 +6,7 @@ showhelp () {
 	echo "    -d         Startup DB (image: \"mysql:5.7\")"
 	echo "    -a         Startup AS (image: \"ctliv/liferay:6.2\")"
 	echo "    -n         Avoid AS startup wizard (default: false)"
-	echo "    -h <host>  Public hostname of the VM (default: \"lep-dev.dynu.com\")"
+	echo "    -h <host>  Public hostname of the VM (default: \"${host}\")"
 	echo "    -c         Cleanup: stops (if running) and remove container(s)"
 	echo
 	echo "NOTE:"
