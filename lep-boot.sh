@@ -6,7 +6,7 @@ showhelp () {
 	echo "    -d         Startup DB (image: \"mysql:5.7\")"
 	echo "    -a         Startup AS (image: \"ctliv/liferay:6.2\")"
 	echo "    -n         Avoid AS startup wizard (default: false)"
-	echo "    -h <host>  Public hostname of the VM (default: \"lep-dev.dynu.com\")"
+	echo "    -h <host>  Public hostname of the VM (default: \"${host}\")"
 	echo "    -c         Cleanup: stops (if running) and remove container(s)"
 	echo
 	echo "NOTE:"
@@ -18,7 +18,7 @@ showhelp () {
 OPTIND=1
 db=0
 as=0
-host=""
+host=$(wget http://ipinfo.io/ip -qO -)
 nowizard=0
 cleanup=0
 
@@ -65,6 +65,6 @@ if [ $db -eq 1 ]; then
 fi
 
 if [ $as -eq 1 ]; then
-	docker run --name lep-as -p 80:8080 -p 443:8443 -p 2222:22 -p 1099:1099 -p 8999:8999 --link lep-db -e LIFERAY_DEBUG=1 -v /$(dirname $(readlink -f $0))/deploy-run:/var/liferay/deploy -v /$(dirname $(readlink -f $0))/../rainbow/rainbow-operativo/db:/opt/data -e VM_HOST=${host} -e LIFERAY_NOWIZARD=${nowizard} -d ctliv/liferay:7.0
+	docker run --name lep-as -p 80:8080 -p 443:8443 -p 2222:22 -p 1099:1099 -p 8999:8999 --link lep-db -e LIFERAY_DEBUG=1 -v /$(dirname $(readlink -f $0))/deploy-run:/var/liferay/deploy -v /$(dirname $(readlink -f $0))/../rainbow/rainbow-operativo/db:/opt/data -e VM_HOST=${host} -e LIFERAY_NOWIZARD=${nowizard} -d ctliv/liferay:6.2
 fi
 

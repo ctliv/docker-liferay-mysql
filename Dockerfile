@@ -24,13 +24,13 @@ ENV PATH=$PATH:$JAVA_HOME/bin
 
 # Install liferay (removing sample application "welcome-theme")
 ENV LIFERAY_BASE=/opt
-ENV LIFERAY_DIR=liferay-portal-7.0-ce-ga1
+ENV LIFERAY_DIR=liferay-ce-portal-7.0-ga2
 ENV LIFERAY_HOME=${LIFERAY_BASE}/${LIFERAY_DIR} 
 ENV TOMCAT_DIR=tomcat-8.0.32 
 ENV TOMCAT_HOME=${LIFERAY_HOME}/${TOMCAT_DIR} 
 RUN cd /tmp && \
 	curl -o ${LIFERAY_DIR}.zip -k -L -C - \
-	"https://sourceforge.net/projects/lportal/files/Liferay%20Portal/7.0.0%20GA1/liferay-portal-tomcat-7.0-ce-ga1-20160331161017956.zip" && \
+	"https://sourceforge.net/projects/lportal/files/Liferay%20Portal/7.0.1%20GA2/liferay-ce-portal-tomcat-7.0-ga2-20160609231908331.zip" && \
 	unzip ${LIFERAY_DIR}.zip -d /opt && \
 	rm ${LIFERAY_DIR}.zip && \
 	rm -fr ${TOMCAT_HOME}/webapps/welcome-theme && \
