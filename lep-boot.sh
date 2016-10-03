@@ -1,7 +1,7 @@
 #!/bin/bash
 
 DB-IMAGE="mysql:5.6"
-AS-IMAGE="ctliv/liferay:6.2"
+AS-IMAGE="ctliv/liferay:7.0"
 
 showhelp () {
 	echo "USAGE: lep-boot.sh [options]"
