@@ -37,13 +37,17 @@ RUN cd /tmp && \
 	mkdir -p ${LIFERAY_HOME}/deploy && \
 	mkdir -p ${LIFERAY_BASE}/script
 
-# Add italian language files
-RUN cd /tmp && \
-	curl -o Language-ext_it-62x.zip -k -L -C - \
-	"https://web.liferay.com/it/c/wiki/get_page_attachment?p_l_id=10436093&nodeId=10436223&title=File+Lingua+Italiana+Aggiornati&fileName=Language-ext_it-62x.zip" && \
-	mkdir ${TOMCAT_HOME}/webapps/ROOT/WEB-INF/classes/content && \
-	unzip Language-ext_it-62x.zip -d ${TOMCAT_HOME}/webapps/ROOT/WEB-INF/classes/content && \
-	rm Language-ext_it-62x.zip
+## Add italian language files
+#RUN cd /tmp && \
+#	curl -o Language-ext_it-62x.zip -k -L -C - \
+#	"https://web.liferay.com/it/c/wiki/get_page_attachment?p_l_id=10436093&nodeId=10436223&title=File+Lingua+Italiana+Aggiornati&fileName=Language-ext_it-62x.zip" && \
+#	mkdir ${TOMCAT_HOME}/webapps/ROOT/WEB-INF/classes/content && \
+#	unzip Language-ext_it-62x.zip -d ${TOMCAT_HOME}/webapps/ROOT/WEB-INF/classes/content && \
+#	rm Language-ext_it-62x.zip
+
+# Add language files
+RUN mkdir ${TOMCAT_HOME}/webapps/ROOT/WEB-INF/classes/content
+ADD lang/* ${TOMCAT_HOME}/webapps/ROOT/WEB-INF/classes/content/
 
 # Add symlinks to HOME dirs
 RUN ln -fs ${LIFERAY_HOME} /var/liferay && \
