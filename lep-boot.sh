@@ -1,13 +1,13 @@
 #!/bin/bash
 
-DB-IMAGE="mysql:5.6"
-AS-IMAGE="ctliv/liferay:6.2"
+DB_IMAGE="mysql:5.6"
+AS_IMAGE="ctliv/liferay:6.2"
 
 showhelp () {
 	echo "USAGE: lep-boot.sh [options]"
 	echo "OPTIONS:"
-	echo "    -d         Startup DB (image: \"${DB-IMAGE}\")"
-	echo "    -a         Startup AS (image: \"${AS-IMAGE}\")"
+	echo "    -d         Startup DB (image: \"${DB_IMAGE}\")"
+	echo "    -a         Startup AS (image: \"${AS_IMAGE}\")"
 	echo "    -n         Avoid AS startup wizard (default: false)"
 	echo "    -h <host>  Public hostname of the VM (default: \"${host}\")"
 	echo "    -c         Cleanup: stops (if running) and remove container(s)"
@@ -64,10 +64,10 @@ if [ $cleanup -eq 1 ]; then
 fi
 
 if [ $db -eq 1 ]; then
-	docker run --name lep-db -p 3306:3306 -e MYSQL_ROOT_PASSWORD=adminpwd -e MYSQL_USER=lportal -e MYSQL_PASSWORD=lportal -e MYSQL_DATABASE=lportal --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci -d ${DB-IMAGE}
+	docker run --name lep-db -p 3306:3306 -e MYSQL_ROOT_PASSWORD=adminpwd -e MYSQL_USER=lportal -e MYSQL_PASSWORD=lportal -e MYSQL_DATABASE=lportal --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci -d ${DB_IMAGE}
 fi
 
 if [ $as -eq 1 ]; then
-	docker run --name lep-as -p 80:8080 -p 443:8443 -p 2222:22 -p 1099:1099 -p 8999:8999 --link lep-db -e LIFERAY_DEBUG=1 -v /$(dirname $(readlink -f $0))/deploy-run:/var/liferay/deploy -v /$(dirname $(readlink -f $0))/../rainbow/rainbow-operativo/db:/opt/data -e VM_HOST=${host} -e LIFERAY_NOWIZARD=${nowizard} -d ${AS-IMAGE}
+	docker run --name lep-as -p 80:8080 -p 443:8443 -p 2222:22 -p 1099:1099 -p 8999:8999 --link lep-db -e LIFERAY_DEBUG=1 -v /$(dirname $(readlink -f $0))/deploy-run:/var/liferay/deploy -v /$(dirname $(readlink -f $0))/../rainbow/rainbow-operativo/db:/opt/data -e VM_HOST=${host} -e LIFERAY_NOWIZARD=${nowizard} -d ${AS_IMAGE}
 fi
 
