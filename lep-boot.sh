@@ -64,7 +64,7 @@ if [ $cleanup -eq 1 ]; then
 fi
 
 if [ $db -eq 1 ]; then
-	docker run --name lep-db -p 3306:3306 -e MYSQL_ROOT_PASSWORD=adminpwd -e MYSQL_USER=lportal -e MYSQL_PASSWORD=lportal -e MYSQL_DATABASE=lportal -d ${DB_IMAGE} --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+	docker run --name lep-db -p 3306:3306 -e MYSQL_ROOT_PASSWORD=adminpwd -e MYSQL_USER=lportal -e MYSQL_PASSWORD=lportal -e MYSQL_DATABASE=lportal -d ${DB_IMAGE} --character-set-server=utf8 --collation-server=utf8_unicode_ci
 fi
 
 if [ $as -eq 1 ]; then
