@@ -48,8 +48,8 @@ RUN ln -fs ${LIFERAY_HOME} /var/liferay && \
 # Add configuration files to liferay home
 ADD conf/* ${LIFERAY_HOME}/
 
-# Add default plugins to auto-deploy directory
-ADD deploy/* ${LIFERAY_HOME}/deploy/
+# Add plugins to auto-deploy directory
+ADD deploy-boot/* ${LIFERAY_HOME}/deploy/
 
 # Add startup scripts
 ADD script/* ${LIFERAY_BASE}/script/
