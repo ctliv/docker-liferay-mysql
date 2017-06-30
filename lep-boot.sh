@@ -11,6 +11,7 @@ showhelp () {
 	echo "    -n         Avoid AS startup wizard (default: false)"
 	echo "    -h <host>  Public hostname of the VM (default: \"${host}\")"
 	echo "    -c         Cleanup: stops (if running) and remove container(s)"
+	echo "    -P         Production mode: debug ports are not exposed"
 	echo
 	echo "NOTE:"
 	echo "    At least -d or -a must be specified"
@@ -24,6 +25,7 @@ as=0
 host=$(wget http://ipinfo.io/ip -qO -)
 nowizard=0
 cleanup=0
+debugports=-p 2222:22 -p 1099:1099 -p 8999:8999 -p 2525:2525
 
 while getopts "danch:" opt; do
 	case "$opt" in
@@ -34,6 +36,8 @@ while getopts "danch:" opt; do
 	n)	nowizard=1
 		;;
 	c)	cleanup=1
+		;;
+	P)	debugports=""
 		;;
 	h)	host=$OPTARG
 	esac
@@ -68,6 +72,6 @@ if [ $db -eq 1 ]; then
 fi
 
 if [ $as -eq 1 ]; then
-	docker run --name lep-as -p 80:8080 -p 443:8443 -p 2222:22 -p 1099:1099 -p 8999:8999 -p 11311:11311 --link lep-db -e LIFERAY_DEBUG=1 -v /$(dirname $(readlink -f $0))/deploy:/var/liferay/deploy -v /$(dirname $(readlink -f $0))/../rainbow/rainbow-operativo/db:/opt/data -e VM_HOST=${host} -e LIFERAY_NOWIZARD=${nowizard} -d ${AS_IMAGE}
+	docker run --name lep-as -p 80:8080 -p 443:8443 ${debugports} --link lep-db -e LIFERAY_DEBUG=1 -v /$(dirname $(readlink -f $0))/deploy:/var/liferay/deploy -v /$(dirname $(readlink -f $0))/../rainbow/rainbow-operativo/db:/opt/data -e VM_HOST=${host} -e LIFERAY_NOWIZARD=${nowizard} -d ${AS_IMAGE}
 fi
 
