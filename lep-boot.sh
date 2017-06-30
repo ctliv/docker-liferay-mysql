@@ -25,7 +25,7 @@ as=0
 host=$(wget http://ipinfo.io/ip -qO -)
 nowizard=0
 cleanup=0
-debugports=-p 2222:22 -p 1099:1099 -p 8999:8999 -p 2525:2525
+debugports="-p 2222:22 -p 1099:1099 -p 8999:8999 -p 2525:2525"
 
 while getopts "danch:" opt; do
 	case "$opt" in
