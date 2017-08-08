@@ -8,7 +8,7 @@ RUN echo "root:Docker!" | chpasswd
 
 # Install packages
 RUN apt-get update && \
-	apt-get install -y curl unzip ssh vim net-tools git && \
+	apt-get install -y curl unzip ssh vim net-tools git telnet && \
 	apt-get clean
 	
 # Export TERM as "xterm"
