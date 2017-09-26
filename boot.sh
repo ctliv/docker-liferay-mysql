@@ -4,7 +4,7 @@ DB_IMAGE="mysql:5.6"
 AS_IMAGE="ctliv/liferay:6.2"
 
 showhelp () {
-	echo "USAGE: lep-boot.sh [options]"
+	echo "USAGE: boot.sh [options]"
 	echo "OPTIONS:"
 	echo "    -d         Startup DB (image: \"${DB_IMAGE}\")"
 	echo "    -a         Startup AS (image: \"${AS_IMAGE}\")"
