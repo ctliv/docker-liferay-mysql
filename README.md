@@ -3,29 +3,38 @@ Liferay (latest 6.2 or 7.0) on Tomcat with mysql DB (two containers)
 
 Image available in docker registry: https://hub.docker.com/r/ctliv/liferay/
 
-## Pull with one of:
+## Images:
 
 ```
-docker pull ctliv/liferay:6.2
-docker pull ctliv/liferay:7.0
+ctliv/liferay:6.2
+ctliv/liferay:7.0
 ```
 
-## Launch:
+## Scripts:
 
 ```
-lep-boot.sh -adc
+git clone https://github.com/ctliv/docker-liferay-mysqlù
+cd docker-liferay-mysql
 ```
 
-Note: lep-boot.sh with no parameters show usage synopsis
+## First launch:
+
+```
+boot.sh -adc
+```
+
+Note: boot.sh with no parameters shows help
 Note: docker compose ".yml" files not maintained, currently
 
-## Gracefully stopping and starting:
+## Gracefully stopping and starting containers:
 
 ```
-lep-stop.sh
-lep-start.sh
+stop.sh
+start.sh
 ```
 
 ## Use:
 
-Point browser to docker machine ip (port 80 or port 443)
+# Point browser to docker machine ip (port 80 or port 443)
+
+# Deploy bundles copying jars/wars to "deploy" folder
