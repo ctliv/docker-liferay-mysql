@@ -48,6 +48,9 @@ RUN ln -fs ${LIFERAY_HOME} /var/liferay && \
 # Add configuration files to liferay home
 ADD conf/* ${LIFERAY_HOME}/
 
+# Add log4j custom configuration files
+ADD logconf/* ${TOMCAT_HOME}/webapps/ROOT/WEB-INF/classes/META-INF/
+
 # Add plugins to auto-deploy directory
 ADD deploy-boot/* ${LIFERAY_HOME}/deploy/
 
