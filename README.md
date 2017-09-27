@@ -13,7 +13,8 @@ ctliv/liferay:7.0
 ## Scripts:
 
 ```
-git clone https://github.com/ctliv/docker-liferay-mysqlù
+git clone https://github.com/ctliv/docker-liferay-mysql
+git checkout 7.0    (or 6.2)
 cd docker-liferay-mysql
 ```
 
