@@ -72,6 +72,6 @@ if [ $db -eq 1 ]; then
 fi
 
 if [ $as -eq 1 ]; then
-	docker run --name lep-as -p 80:8080 -p 443:8443 ${debugports} --link lep-db -e LIFERAY_DEBUG=1 -v /$(dirname $(readlink -f $0))/deploy:/var/liferay/deploy -v /$(dirname $(readlink -f $0))/data:/opt/data -e VM_HOST=${host} -e LIFERAY_NOWIZARD=${nowizard} -d ${AS_IMAGE}
+	docker run --name lep-as -p 80:8080 -p 443:8443 ${debugports} --link lep-db -e LIFERAY_DEBUG=1 -v /$(dirname $(readlink -f $0))/deploy:/var/liferay/deploy -v /$(dirname $(readlink -f $0))/modules:/var/liferay/osgi/modules -v /$(dirname $(readlink -f $0))/data:/opt/data -e VM_HOST=${host} -e LIFERAY_NOWIZARD=${nowizard} -d ${AS_IMAGE}
 fi
 
