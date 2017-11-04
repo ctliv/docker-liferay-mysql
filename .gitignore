@@ -1,9 +1,11 @@
-# Exclude all directories named "target"
-target/
-
 # Exclude settings files and directories (e.g.: Eclipse)
 \.*/
 \.*
 
 # Keep .gitignore file
 !\.gitignore
+
+# Exclude modules except placeholder file
+modules/*
+!modules/installed\ osgi\ modules\ folder
+
