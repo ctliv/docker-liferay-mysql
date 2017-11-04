@@ -5,7 +5,11 @@
 # Keep .gitignore file
 !\.gitignore
 
-# Exclude modules except placeholder file
+# Exclude modules folder except placeholder file
 modules/*
 !modules/installed\ osgi\ modules\ folder
+
+# Exclude data folder except placeholder file
+data/*
+!data/mounted\ data\ directory
 
