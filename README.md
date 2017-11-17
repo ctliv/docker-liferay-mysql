@@ -26,6 +26,7 @@ boot.sh -adc
 
 Note: boot.sh with no parameters shows help
 Note: docker compose ".yml" files not maintained, currently
+Note: prepend "sudo" if needed
 
 ## Gracefully stopping and starting containers:
 
@@ -33,6 +34,8 @@ Note: docker compose ".yml" files not maintained, currently
 stop.sh
 start.sh
 ```
+
+Note: prepend "sudo" if needed
 
 ## Use:
 
