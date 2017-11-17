@@ -24,9 +24,10 @@ cd docker-liferay-mysql
 boot.sh -adc
 ```
 
-Note: boot.sh with no parameters shows help
-Note: docker compose ".yml" files not maintained, currently
-Note: prepend "sudo" if needed
+Notes:
+- "boot.sh" with no parameters shows help
+- Prepend "sudo" if needed
+- Docker compose ".yml" files not maintained, currently
 
 ## Gracefully stopping and starting containers:
 
@@ -35,7 +36,8 @@ stop.sh
 start.sh
 ```
 
-Note: prepend "sudo" if needed
+Note:
+- Prepend "sudo" if needed
 
 ## Use:
 
