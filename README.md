@@ -36,6 +36,8 @@ start.sh
 
 ## Use:
 
-# Point browser to docker machine ip (port 80 or port 443)
+- Point browser to docker machine ip (port 80 or port 443)
+- Deploy bundles to "deploy" folder
+- Remove installed bundles from "modules" folder
+- Add custom files to "data" folder
 
-# Deploy bundles copying jars/wars to "deploy" folder
