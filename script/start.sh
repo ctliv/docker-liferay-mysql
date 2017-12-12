@@ -57,7 +57,9 @@ if [[ $LIFERAY_DEBUG -eq 1 ]]; then
 	OPTS="$OPTS -Djava.rmi.server.hostname=${VM_HOST}"
 	
 	#Enables jpda remote debugging (same as "export JPDA_ADDRESS=8999 && export JPDA_TRANSPORT=dt_socket && ${TOMCAT_HOME}/bin/catalina.sh jpda run")
-	OPTS="$OPTS -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=8999"
+	OPTS="$OPTS -Xdebug -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=8999 "
+	#Alternative
+	#OPTS="$OPTS -Xdebug --Xrunjdwp:server=y,transport=dt_socket,address=8999,suspend=n "
 
 	#Exports configuration
 	export CATALINA_OPTS="$CATALINA_OPTS $OPTS"
