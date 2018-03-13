@@ -1,32 +1,39 @@
-lep-as:
-  image: ctliv/liferay:6.2
-  container_name: lep-as
-  dns:
-  - 8.8.8.8
-  - 8.8.4.4
-  environment:
-  - LIFERAY_DEBUG=1
-  - VM_HOST=vm-default
-  ports:
-  - "2222:22"
-  - "1099:1099"
-  - "80:8080"
-  - "443:8443"
-  - "8999:8999"
-  volumes:
-  - ./deploy-run:/var/liferay/deploy
-  links:
-  - "lep-db"
-lep-db:
-  image: mysql:5.7
-  container_name: lep-db
-  dns:
-  - 8.8.8.8
-  - 8.8.4.4
-  ports:
-  - "3306:3306"
-  environment:
-  - MYSQL_ROOT_PASSWORD=adminpwd
-  - MYSQL_USER=lportal
-  - MYSQL_PASSWORD=lportal
-  - MYSQL_DATABASE=lportal
+version: "3"
+services:
+  liferay:
+    container_name: lep-as
+    image: ctliv/liferay:7.0
+    depends_on:
+      - database
+    ports:
+      - "80:8080" 
+      - "443:8443"
+      - "2222:22" 
+      - "1099" 
+      - "8999" 
+      - "11311"
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
+    volumes:
+      - ./deploy:/var/liferay/deploy
+      - ./modules:/var/liferay/osgi/modules
+      - ./data:/opt/data
+    environment:
+      - LIFERAY_DEBUG=1
+      - LIFERAY_NOWIZARD=0
+      - VM_HOST=vm-default    
+  database:
+    container_name: lep-db
+    image: mysql:5.7
+    ports:
+      - "3306"
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
+    environment:
+      - MYSQL_ROOT_PASSWORD=adminpwd
+      - MYSQL_USER=lportal
+      - MYSQL_PASSWORD=lportal
+      - MYSQL_DATABASE=lportal
+    command: --character-set-server=utf8 --collation-server=utf8_unicode_ci
