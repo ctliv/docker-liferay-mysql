@@ -21,29 +21,28 @@ cd docker-liferay-mysql
 ## First launch:
 
 ```
-boot.sh -adc
+docker-compose up
 ```
 or
 ```
-docker-compose up
+boot.sh -adc
 ```
-
-Notes:
-- "boot.sh" with no parameters shows help
-- Prepend "sudo" if needed
 
 ## Gracefully stopping and starting containers:
 
+```
+docker-compose stop
+docker-compose start
+```
+or
 ```
 stop.sh
 start.sh
 ```
 
-Note:
-- Prepend "sudo" if needed
-
 ## Use:
 
+- Prepend "sudo" to command, if needed
 - Point browser to docker machine ip (port 80 or port 443)
 - Deploy bundles to "deploy" folder
 - Remove installed bundles from "modules" folder
