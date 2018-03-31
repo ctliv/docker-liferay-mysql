@@ -55,6 +55,10 @@ if [[ $LIFERAY_DEBUG -eq 1 ]]; then
 	OPTS="$OPTS -Dcom.sun.management.jmxremote.port=1099"
 	OPTS="$OPTS -Dcom.sun.management.jmxremote.rmi.port=1099"
 	OPTS="$OPTS -Djava.rmi.server.hostname=${VM_HOST}"
+
+	#Needed when using JasperReports
+	#See: https://community.jaspersoft.com/wiki/error-when-running-reports-could-not-initialize-class
+	OPTS="$OPTS -Djava.awt.headless=true"
 	
 	#Enables jpda remote debugging (same as "export JPDA_ADDRESS=8999 && export JPDA_TRANSPORT=dt_socket && ${TOMCAT_HOME}/bin/catalina.sh jpda run")
 	OPTS="$OPTS -Xdebug -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=8999 "
