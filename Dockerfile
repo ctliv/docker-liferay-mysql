@@ -24,13 +24,13 @@ ENV PATH=$PATH:$JAVA_HOME/bin
 
 # Install liferay
 ENV LIFERAY_BASE=/opt
-ENV LIFERAY_DIR=liferay-ce-portal-7.0-ga5
+ENV LIFERAY_DIR=liferay-ce-portal-7.0-ga6
 ENV LIFERAY_HOME=${LIFERAY_BASE}/${LIFERAY_DIR}
 ENV TOMCAT_DIR=tomcat-8.0.32
 ENV TOMCAT_HOME=${LIFERAY_HOME}/${TOMCAT_DIR}
 RUN cd /tmp && \
 	curl -o ${LIFERAY_DIR}.zip -k -L -C - \
-	"https://sourceforge.net/projects/lportal/files/Liferay%20Portal/7.0.4%20GA5/liferay-ce-portal-tomcat-7.0-ga5-20171018150113838.zip" && \
+	"https://sourceforge.net/projects/lportal/files/Liferay%20Portal/7.0.5%20GA6/liferay-ce-portal-tomcat-7.0-ga6-20180320170724974.zip" && \
 	unzip ${LIFERAY_DIR}.zip -d /opt && \
 	rm ${LIFERAY_DIR}.zip && \
 	mkdir -p ${LIFERAY_HOME}/deploy && \
