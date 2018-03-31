@@ -1,5 +1,5 @@
-Liferay (latest 6.2 or 7.0) on Tomcat with mysql DB (two containers)
-====================================================================
+Liferay CE (latest 6.2 or 7.0) on Tomcat with mysql DB (two containers)
+=======================================================================
 
 Image available in docker registry: https://hub.docker.com/r/ctliv/liferay/
 
