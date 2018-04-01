@@ -1,9 +1,15 @@
-# Exclude all directories named "target"
-target/
-
 # Exclude settings files and directories (e.g.: Eclipse)
 \.*/
 \.*
 
 # Keep .gitignore file
 !\.gitignore
+
+# Exclude deploy-run folder except placeholder file
+deploy-run/*
+!modules/deploy\ packages\ when\ running
+
+# Exclude data folder except placeholder file
+data/*
+!data/mounted\ data\ directory
+
