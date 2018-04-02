@@ -15,6 +15,7 @@ services:
       - 8.8.8.8
       - 8.8.4.4
     volumes:
+      - ./deploy-run:/var/liferay/deploy
       - ./data:/opt/data
     environment:
       - LIFERAY_DEBUG=1
