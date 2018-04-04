@@ -67,7 +67,7 @@ fi
 
 #Enables custom jvm options 
 if [ -z "$JAVA_OPTS" ]; then 
-	echo "No custom jvm startup detected"
+	echo "No custom jvm startup options"
 	echo
 else
 	export CATALINA_OPTS="$CATALINA_OPTS $JAVA_OPTS"
