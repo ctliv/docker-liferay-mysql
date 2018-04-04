@@ -2,7 +2,7 @@
 
 #Increment count of container restarts
 FILE=$(dirname $0)/liferay_runs
-if [[ -e $FILE ]]; then
+if [ -e "$FILE" ]; then
 	LIFERAY_RUN=$(cat $FILE)
 fi
 LIFERAY_RUN=$((LIFERAY_RUN + 1))
@@ -12,8 +12,8 @@ echo $LIFERAY_RUN > $FILE
 service ssh stop
 
 #On first run only, if LIFERAY_NOWIZARD is not set, removes wizard properties file (enable wizard)
-if [[ $LIFERAY_RUN -eq 1 ]]; then
-	if [[ $LIFERAY_NOWIZARD -ne 1 ]]; then
+if [ $LIFERAY_RUN -eq 1 ]; then
+	if [ $LIFERAY_NOWIZARD -ne 1 ]; then
 		rm -f ${LIFERAY_HOME}/portal-setup-wizard.properties
 	else
 		#Sets "liferay.home" wizard property
@@ -25,7 +25,7 @@ if [[ $LIFERAY_RUN -eq 1 ]]; then
 	sed -i -z 's/<!--\s*\(<Connector\s*port="8443".*sslProtocol="TLS"\s*\/>\)\s*-->/\1/' ${TOMCAT_HOME}/conf/server.xml
 fi
 
-if [[ $LIFERAY_DEBUG -eq 1 ]]; then
+if [ $LIFERAY_DEBUG -eq 1 ]; then
 	#Configure and launch ssh
 	sed -i 's/PermitRootLogin .*/PermitRootLogin yes/' /etc/ssh/sshd_config
 	sed -i 's/PubkeyAuthentication yes/PubkeyAuthentication no/' /etc/ssh/sshd_config
@@ -56,10 +56,6 @@ if [[ $LIFERAY_DEBUG -eq 1 ]]; then
 	OPTS="$OPTS -Dcom.sun.management.jmxremote.rmi.port=1099"
 	OPTS="$OPTS -Djava.rmi.server.hostname=${VM_HOST}"
 
-	#Needed when using JasperReports
-	#See: https://community.jaspersoft.com/wiki/error-when-running-reports-could-not-initialize-class
-	OPTS="$OPTS -Djava.awt.headless=true"
-	
 	#Enables jpda remote debugging (same as "export JPDA_ADDRESS=8999 && export JPDA_TRANSPORT=dt_socket && ${TOMCAT_HOME}/bin/catalina.sh jpda run")
 	OPTS="$OPTS -Xdebug -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=8999 "
 	#Alternative
@@ -67,10 +63,18 @@ if [[ $LIFERAY_DEBUG -eq 1 ]]; then
 
 	#Exports configuration
 	export CATALINA_OPTS="$CATALINA_OPTS $OPTS"
-	
-	echo "Starting catalina with options: $OPTS"
-	echo
 fi
+
+#Enables custom jvm options 
+if [ -z "$JAVA_OPTS" ]; then 
+	echo "No custom jvm startup detected"
+	echo
+else
+	export CATALINA_OPTS="$CATALINA_OPTS $JAVA_OPTS"
+fi
+	
+echo "Starting catalina with options: $CATALINA_OPTS"
+echo
 	
 #Launch catalina
 ${TOMCAT_HOME}/bin/catalina.sh run
