@@ -22,7 +22,6 @@ services:
     environment:
       - LIFERAY_DEBUG=1
       - LIFERAY_NOWIZARD=0
-      - VM_HOST=vm-default    
   database:
     container_name: lep-db
     image: mysql:5.7
