@@ -2,7 +2,7 @@ version: "3"
 services:
   liferay:
     container_name: lep-as
-    image: ctliv/liferay:7.0
+    image: ctliv/liferay:latest
     depends_on:
       - database
     ports:
