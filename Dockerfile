@@ -3,8 +3,8 @@ FROM ubuntu:xenial
 MAINTAINER Cristiano Toncelli <ct.livorno@gmail.com>
 
 # Users and groups
-# RUN groupadd -r tomcat && useradd -r -g tomcat tomcat
 RUN echo "root:Docker!" | chpasswd
+# RUN groupadd -r tomcat && useradd -r -g tomcat tomcat
 
 # Install packages
 RUN apt-get update && \
@@ -37,8 +37,8 @@ RUN cd /tmp && \
 	mkdir -p ${LIFERAY_BASE}/script
 
 # Add latest version of language files
-#RUN mkdir ${TOMCAT_HOME}/webapps/ROOT/WEB-INF/classes/content
-#ADD lang/* ${TOMCAT_HOME}/webapps/ROOT/WEB-INF/classes/content/
+# RUN mkdir ${TOMCAT_HOME}/webapps/ROOT/WEB-INF/classes/content
+# ADD lang/* ${TOMCAT_HOME}/webapps/ROOT/WEB-INF/classes/content/
 
 # Add symlinks to HOME dirs
 RUN ln -fs ${LIFERAY_HOME} /var/liferay && \
@@ -51,7 +51,7 @@ ADD conf/* ${LIFERAY_HOME}/
 ADD logconf/* ${TOMCAT_HOME}/webapps/ROOT/WEB-INF/classes/META-INF/
 
 # Add plugins to auto-deploy directory
-ADD deploy-boot/* ${LIFERAY_HOME}/deploy/
+# ADD deploy-build/* ${LIFERAY_HOME}/deploy/
 
 # Add startup scripts
 ADD script/* ${LIFERAY_BASE}/script/
