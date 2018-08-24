@@ -33,9 +33,9 @@ See: https://docs.docker.com/compose/reference/overview/
 docker-compose up -d
 ```
 
-### Launch specific version <tag>:
+### Launch specific version (<tag>):
 ```
-docker-compose up -f docker-compose-<tag>.yml -d
+docker-compose -f docker-compose-<tag>.yml up -d
 ``` 
 
 ### Lifecycle commands
