@@ -5,6 +5,7 @@ services:
     image: ctliv/liferay:7_0_6-GA7
     depends_on:
       - database
+      - mailrelay
     ports:
       - "80:8080" 
       - "443:8443"
@@ -36,3 +37,11 @@ services:
       - MYSQL_PASSWORD=lportal
       - MYSQL_DATABASE=lportal
     command: --character-set-server=utf8 --collation-server=utf8_unicode_ci
+  mailrelay:
+    container_name: lep-mr
+    image: namshi/smtp:latest
+    ports:
+      - "2525:25"
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
