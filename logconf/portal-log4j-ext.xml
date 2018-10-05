@@ -5,4 +5,7 @@
 	<category name="com.ctliv">
 		<priority value="TRACE" />
 	</category>
+	<category name="org.hibernate.stat">
+		<priority value="DEBUG" />
+	</category>
 </log4j:configuration>
