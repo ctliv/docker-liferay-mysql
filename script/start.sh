@@ -20,9 +20,17 @@ if [ $LIFERAY_RUN -eq 1 ]; then
 		echo "liferay.home=$LIFERAY_HOME" >> ${LIFERAY_HOME}/portal-setup-wizard.properties
 	fi
 	
-	#Enables SSL using untrusted local certificate
-	$JAVA_HOME/bin/keytool -genkey -alias tomcat -keyalg RSA -storepass changeit -keypass changeit -dname "CN=CT, OU=Dev, O=JpaEx, L=LI, ST=LI, C=IT"	
-	sed -i -z 's/<!--\s*\(<Connector\s*port="8443".*sslProtocol="TLS"\s*\/>\)\s*-->/\1/' ${TOMCAT_HOME}/conf/server.xml
+	#Localhost certificate creation with openssl
+	#mkdir -p /var/cert/localhost
+	#openssl req -x509 -out /var/cert/localhost/localhost.crt -keyout /var/cert/localhost/localhost.key -newkey rsa:2048 -nodes -sha256 -subj '/CN=localhost' -extensions EXT -config <(printf "[dn]\nCN=localhost\n[req]\ndistinguished_name = dn\n[EXT]\nsubjectAltName=DNS:localhost\nkeyUsage=digitalSignature\nextendedKeyUsage=serverAuth")
+	
+	#Certbot usage for requesting Let's Encrypt certificate (https://certbot.eff.org/lets-encrypt/ubuntuxenial-other)
+	#certbot certonly --webroot -w ${TOMCAT_HOME}/webapps/ROOT -d $VM_HOST
+	
+	#Generates untrusted local certificate
+	$JAVA_HOME/bin/keytool -genkey -alias tomcat -keyalg RSA -storepass changeit -keypass changeit -dname "CN=CT, OU=Dev, O=CtLiv, L=LI, ST=LI, C=IT"	
+	#Converts keystore to PKCS12 (open) format
+	$JAVA_HOME/bin/keytool -importkeystore -srckeystore /root/.keystore -destkeystore /root/.keystore -srcstorepass changeit -deststorepass changeit -deststoretype pkcs12
 fi
 
 if [ $LIFERAY_DEBUG -eq 1 ]; then
@@ -67,7 +75,8 @@ fi
 
 #Enables custom jvm options 
 if [ -z "$JAVA_OPTS" ]; then 
-	echo "No custom jvm startup options"
+	echo
+	echo "No custom jvm startup options in docker run command"
 	echo
 else
 	export CATALINA_OPTS="$CATALINA_OPTS $JAVA_OPTS"
