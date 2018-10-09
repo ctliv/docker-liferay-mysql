@@ -1,4 +1,4 @@
-FROM ubuntu:xenial
+FROM ubuntu:bionic
 
 MAINTAINER Cristiano Toncelli <ct.livorno@gmail.com>
 
@@ -8,10 +8,7 @@ RUN echo "root:Docker!" | chpasswd
 
 # Install packages
 RUN apt-get update && \
-	apt-get install -y curl unzip ssh vim net-tools git telnet openssl software-properties-common libtcnative-1 tzdata && \
-	add-apt-repository -y ppa:certbot/certbot && \
-	apt-get update && \
-	apt-get install -y certbot && \
+	apt-get install -y curl unzip ssh vim net-tools git telnet && \
 	apt-get clean
 	
 # Export TERM as "xterm"
@@ -38,6 +35,16 @@ RUN cd /tmp && \
 	rm ${LIFERAY_DIR}.zip && \
 	mkdir -p ${LIFERAY_HOME}/deploy && \
 	mkdir -p ${LIFERAY_BASE}/script
+	
+#Add variables to global profile
+RUN echo >> /etc/profile && \
+	echo "export JAVA_HOME=${JAVA_HOME}" >> /etc/profile && \
+	echo "export JRE_HOME=${JRE_HOME}" >> /etc/profile && \
+	echo "export LIFERAY_BASE=${LIFERAY_BASE}" >> /etc/profile && \
+	echo "export LIFERAY_DIR=${LIFERAY_DIR}" >> /etc/profile && \
+	echo "export TOMCAT_DIR=${TOMCAT_DIR}" >> /etc/profile && \
+	echo "export LIFERAY_HOME=${LIFERAY_HOME}" >> /etc/profile && \
+	echo "export TOMCAT_HOME=${TOMCAT_HOME}" >> /etc/profile
 
 # Add latest version of language files (Liferay 6.2 only)
 # RUN mkdir ${TOMCAT_HOME}/webapps/ROOT/WEB-INF/classes/content
