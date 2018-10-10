@@ -1,5 +1,21 @@
 #!/bin/bash
 
+# exit_handler() {
+	# echo Stopping Tomcat and exiting...
+	# ${TOMCAT_HOME}/bin/catalina.sh stop
+	# exit 0
+# }
+
+# stop_handler() {
+	# echo Stopping Tomcat...
+	# ${TOMCAT_HOME}/bin/catalina.sh stop
+# }
+
+#Override LIFERAY_DEBUG from command line
+if [ "$1" != "" ]; then
+	LIFERAY_DEBUG=$1
+fi
+
 #Increment count of container restarts
 FILE=$(dirname $0)/liferay_runs
 if [ -e "$FILE" ]; then
@@ -11,8 +27,9 @@ echo $LIFERAY_RUN > $FILE
 #Stops ssh daemon
 service ssh stop
 
-#On first run only, if LIFERAY_NOWIZARD is not set, removes wizard properties file (enable wizard)
+#Executes only on first run
 if [ $LIFERAY_RUN -eq 1 ]; then
+	#if LIFERAY_NOWIZARD is not set, removes wizard properties file (enable wizard)
 	if [ $LIFERAY_NOWIZARD -ne 1 ]; then
 		rm -f ${LIFERAY_HOME}/portal-setup-wizard.properties
 	else
@@ -33,10 +50,10 @@ if [ $LIFERAY_RUN -eq 1 ]; then
 	$JAVA_HOME/bin/keytool -importkeystore -srckeystore /root/.keystore -destkeystore /root/.keystore -srcstorepass changeit -deststorepass changeit -deststoretype pkcs12
 fi
 
-if [ $LIFERAY_DEBUG -eq 1 ]; then
+if [ "$LIFERAY_DEBUG" != "" ]; then
 	#Configure and launch ssh
-	sed -i 's/PermitRootLogin .*/PermitRootLogin yes/' /etc/ssh/sshd_config
-	sed -i 's/PubkeyAuthentication yes/PubkeyAuthentication no/' /etc/ssh/sshd_config
+	sed -i 's/#*\s*PermitRootLogin .*/PermitRootLogin yes/' /etc/ssh/sshd_config
+	sed -i 's/#*\s*PubkeyAuthentication .*/PubkeyAuthentication no/' /etc/ssh/sshd_config
 	# SSH login fix. Otherwise user is kicked off after login
 	sed 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so@g' -i /etc/pam.d/sshd	
 	#Start ssh daemon
@@ -76,7 +93,7 @@ fi
 #Enables custom jvm options 
 if [ -z "$JAVA_OPTS" ]; then 
 	echo
-	echo "No custom jvm startup options in docker run command"
+	echo "No custom jvm startup options found"
 	echo
 else
 	export CATALINA_OPTS="$CATALINA_OPTS $JAVA_OPTS"
@@ -84,6 +101,47 @@ fi
 	
 echo "Starting catalina with options: $CATALINA_OPTS"
 echo
-	
+
+#PID file
+PIDFILE="$(dirname $0)/liferay_pid"
+
+# #Trap signals	
+# trap "exit_handler;" SIGHUP SIGINT SIGQUIT SIGTERM
+# trap "stop_handler;" SIGUSR1
+
+# #Saves PID
+# echo "$$" > "$PIDFILE"
+# #Launch catalina
+# while true
+# do
+	# echo Starting Tomcat...
+	# ${TOMCAT_HOME}/bin/catalina.sh run
+	# #Sends self stop
+	# kill -STOP $$
+	# sleep 1
+# done
+
 #Launch catalina
-${TOMCAT_HOME}/bin/catalina.sh run
+echo Starting Tomcat...
+while true
+do
+	#Saves PID
+	echo "$$" > "$PIDFILE"
+	${TOMCAT_HOME}/bin/catalina.sh run
+	if [ -e "$PIDFILE" ]; then
+		echo "Stop requested. Exiting..."
+		#Stop has been requested
+		exit 0
+	else
+		while true
+		do
+			echo "Waiting for return of ${PIDFILE}..."
+			if [ -e "$PIDFILE" ]; then
+				#Restart has been requested
+				break
+			fi
+			sleep 5
+		done
+	fi
+done
+

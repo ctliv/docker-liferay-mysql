@@ -74,4 +74,4 @@ RUN chmod +x ${LIFERAY_BASE}/script/*.sh
 EXPOSE 8080 8443
 
 # EXEC
-CMD ["/opt/script/start.sh"]
+ENTRYPOINT ["/opt/script/run.sh"]
