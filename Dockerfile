@@ -8,7 +8,7 @@ RUN echo "root:Docker!" | chpasswd
 
 # Install packages
 RUN apt-get update && \
-	apt-get install -y curl unzip ssh vim net-tools git telnet && \
+	apt-get install -y curl unzip ssh vim net-tools git telnet dtrx && \
 	apt-get clean
 	
 # Export TERM as "xterm"
@@ -24,15 +24,17 @@ ENV	PATH=$PATH:$JAVA_HOME/bin
 
 # Install liferay
 ENV LIFERAY_BASE=/opt \
-	LIFERAY_DIR=liferay-ce-portal-7.1.0-ga1 \
-	TOMCAT_DIR=tomcat-9.0.6
+	LIFERAY_DIR=liferay-ce-portal-7.1.1-ga2 \
+	TOMCAT_DIR=tomcat-9.0.10 \
+	LIFERAY_EXT=7z
 ENV LIFERAY_HOME=${LIFERAY_BASE}/${LIFERAY_DIR}
 ENV TOMCAT_HOME=${LIFERAY_HOME}/${TOMCAT_DIR}
 RUN cd /tmp && \
-	curl -o ${LIFERAY_DIR}.zip -k -L -C - \
-	"https://sourceforge.net/projects/lportal/files/Liferay%20Portal/7.1.0%20GA1/liferay-ce-portal-tomcat-7.1.0-ga1-20180703012531655.zip" && \
-	unzip ${LIFERAY_DIR}.zip -d /opt && \
-	rm ${LIFERAY_DIR}.zip && \
+	curl -o ${LIFERAY_DIR}.${LIFERAY_EXT} -k -L -C - \
+	"https://sourceforge.net/projects/lportal/files/Liferay%20Portal/7.1.1%20GA2/liferay-ce-portal-tomcat-7.1.1-ga2-20181112144637000.7z" && \
+	dtrx ${LIFERAY_DIR}.${LIFERAY_EXT} && \
+	mv ${LIFERAY_DIR} /opt && \
+	rm ${LIFERAY_DIR}.${LIFERAY_EXT} && \
 	mkdir -p ${LIFERAY_HOME}/deploy && \
 	mkdir -p ${LIFERAY_BASE}/script
 	
