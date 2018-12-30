@@ -39,15 +39,15 @@ if [ $LIFERAY_RUN -eq 1 ]; then
 	
 	#Localhost certificate creation with openssl
 	#mkdir -p /var/cert/localhost
-	#openssl req -x509 -out /var/cert/localhost/localhost.crt -keyout /var/cert/localhost/localhost.key -newkey rsa:2048 -nodes -sha256 -subj '/CN=localhost' -extensions EXT -config <(printf "[dn]\nCN=localhost\n[req]\ndistinguished_name = dn\n[EXT]\nsubjectAltName=DNS:localhost\nkeyUsage=digitalSignature\nextendedKeyUsage=serverAuth")
-	
-	#Certbot usage for requesting Let's Encrypt certificate (https://certbot.eff.org/lets-encrypt/ubuntuxenial-other)
-	#certbot certonly --webroot -w ${TOMCAT_HOME}/webapps/ROOT -d $VM_HOST
+	#openssl req -x509 -out ${SSL_HOME}/localhost.crt -keyout ${SSL_HOME}/localhost.key -newkey rsa:2048 -nodes -sha256 -subj '/CN=localhost' -extensions EXT -config <(printf "[dn]\nCN=localhost\n[req]\ndistinguished_name = dn\n[EXT]\nsubjectAltName=DNS:localhost\nkeyUsage=digitalSignature\nextendedKeyUsage=serverAuth")
+
+	#Generates untrusted local certificate in PKCS12 (open) format
+	$JAVA_HOME/bin/keytool -genkey -alias tomcat -keyalg RSA -storepass ${SSL_PWD} -keypass ${SSL_PWD} -dname "CN=CT, OU=Dev, O=CtLiv, L=LI, ST=LI, C=IT" -keystore ${SSL_HOME}/.keystore -storetype pkcs12
 	
 	#Generates untrusted local certificate
-	$JAVA_HOME/bin/keytool -genkey -alias tomcat -keyalg RSA -storepass changeit -keypass changeit -dname "CN=CT, OU=Dev, O=CtLiv, L=LI, ST=LI, C=IT"	
+	#$JAVA_HOME/bin/keytool -genkey -alias tomcat -keyalg RSA -storepass changeit -keypass changeit -dname "CN=CT, OU=Dev, O=CtLiv, L=LI, ST=LI, C=IT"	
 	#Converts keystore to PKCS12 (open) format
-	$JAVA_HOME/bin/keytool -importkeystore -srckeystore /root/.keystore -destkeystore /root/.keystore -srcstorepass changeit -deststorepass changeit -deststoretype pkcs12
+	#$JAVA_HOME/bin/keytool -importkeystore -srckeystore ~/.keystore -destkeystore ~/.keystore -srcstorepass changeit -deststorepass changeit -deststoretype pkcs12
 fi
 
 if [ "$LIFERAY_DEBUG" != "" ]; then
