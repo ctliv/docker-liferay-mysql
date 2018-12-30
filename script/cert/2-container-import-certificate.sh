@@ -18,23 +18,23 @@ if [ $# -ne 1 ]; then
     showhelp
 fi
 
-if [ ! -d /etc/letsencrypt/live/${host} ]; then
+hostname="$1"
+
+if [ ! -d /etc/letsencrypt/live/${hostname} ]; then
 	echo "Unable to detect certificate issued by certbot in:"
-	echo "  /etc/letsencrypt/live/${host}"
+	echo "  /etc/letsencrypt/live/${hostname}"
     exit 1
 fi
 
-host="$1"
-
 #Stop Tomcat
 ${SCRIPT_HOME}/stop.sh
-sleep 5
+sleep 10
 
 #Rename default keystore
 mv ${SSL_HOME}/.keystore ${SSL_HOME}/.keystore.org
 
 #Create keystore "cert_and_key.p12" from certbot generated certificate
-openssl pkcs12 -export -in /etc/letsencrypt/live/${host}/cert.pem -inkey /etc/letsencrypt/live/${host}/privkey.pem -out ${SSL_HOME}/cert_and_key.p12 -name tomcat -CAfile /etc/letsencrypt/live/${host}/chain.pem -caname root -passout ${SSL_PWD}
+openssl pkcs12 -export -in /etc/letsencrypt/live/${hostname}/cert.pem -inkey /etc/letsencrypt/live/${hostname}/privkey.pem -out ${SSL_HOME}/cert_and_key.p12 -passout pass:${SSL_PWD} -name tomcat -CAfile /etc/letsencrypt/live/${hostname}/chain.pem -caname root
  
 #Import keystore "cert_and_key.p12" and saves as ".keystore" in pkcs12 format
 keytool -importkeystore -srckeystore ${SSL_HOME}/cert_and_key.p12 -srcstoretype pkcs12 -srcstorepass ${SSL_PWD} -alias tomcat -destkeystore ${SSL_HOME}/.keystore -deststoretype pkcs12 -deststorepass ${SSL_PWD} -destkeypass ${SSL_PWD}
@@ -43,8 +43,8 @@ keytool -importkeystore -srckeystore ${SSL_HOME}/cert_and_key.p12 -srcstoretype 
 #keytool -importkeystore -srckeystore ${SSL_HOME}/.keystore -srcstorepass ${SSL_PWD} -destkeystore ${SSL_HOME}/.keystore -deststoretype pkcs12 -deststorepass ${SSL_PWD}
  
 #Import certificate chain
-keytool -import -trustcacerts -alias root -file /etc/letsencrypt/live/${host}/chain.pem -keystore ${SSL_HOME}/.keystore -storepass ${SSL_PWD}
+keytool -import -trustcacerts -alias root -file /etc/letsencrypt/live/${hostname}/chain.pem -keystore ${SSL_HOME}/.keystore -storepass ${SSL_PWD}
 
 #Restart Tomcat
-/opt/script/restart.sh
+${SCRIPT_HOME}/restart.sh
 

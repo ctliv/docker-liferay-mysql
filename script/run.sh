@@ -30,7 +30,7 @@ service ssh stop
 #Executes only on first run
 if [ $LIFERAY_RUN -eq 1 ]; then
 	#if LIFERAY_NOWIZARD is not set, removes wizard properties file (enable wizard)
-	if [ $LIFERAY_NOWIZARD -ne 1 ]; then
+	if [ "$LIFERAY_NOWIZARD" != "1" ]; then
 		rm -f ${LIFERAY_HOME}/portal-setup-wizard.properties
 	else
 		#Sets "liferay.home" wizard property
