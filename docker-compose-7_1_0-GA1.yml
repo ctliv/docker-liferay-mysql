@@ -1,7 +1,4 @@
-version: "3.5"
-networks:
-    default:
-        name: lep-nw
+version: "3"
 services:
   liferay:
     container_name: lep-as
