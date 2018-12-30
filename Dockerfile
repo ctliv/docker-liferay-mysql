@@ -28,7 +28,7 @@ ENV LIFERAY_BASE=/opt \
 	TOMCAT_DIR=tomcat-9.0.10 \
 	LIFERAY_EXT=7z
 ENV LIFERAY_HOME=${LIFERAY_BASE}/${LIFERAY_DIR} \
-    TOMCAT_HOME=${LIFERAY_HOME}/${TOMCAT_DIR} \
+    TOMCAT_HOME=${LIFERAY_BASE}/${LIFERAY_DIR}/${TOMCAT_DIR} \
 	SCRIPT_HOME=${LIFERAY_BASE}/script \
     SSL_HOME=${LIFERAY_BASE}/ssl \
 	SSL_PWD=changeit
@@ -76,11 +76,11 @@ ADD conf/tomcat/* ${TOMCAT_HOME}/conf
 # ADD deploy-build/* ${LIFERAY_HOME}/deploy/
 
 # Add startup scripts
-ADD script/* ${SCRIPT_HOME}
+ADD script/* ${SCRIPT_HOME}/
 RUN chmod +x ${SCRIPT_HOME}/*.sh
 
 # Ports
 EXPOSE 8080 8443
 
 # EXEC
-ENTRYPOINT ["${SCRIPT_HOME}/run.sh"]
+ENTRYPOINT ["/opt/script/run.sh"]
