@@ -87,7 +87,7 @@
     <Connector port="8443" protocol="org.apache.coyote.http11.Http11NioProtocol"
                maxThreads="150" SSLEnabled="true">
         <SSLHostConfig>
-            <Certificate certificateKeystoreFile="/root/.keystore"
+            <Certificate certificateKeystoreFile="/opt/ssl/.keystore"
                          type="RSA" />
         </SSLHostConfig>
     </Connector>
