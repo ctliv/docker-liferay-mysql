@@ -1,56 +1,32 @@
 #!/bin/bash
 
-# exit_handler() {
-	# echo Stopping Tomcat and exiting...
-	# ${TOMCAT_HOME}/bin/catalina.sh stop
-	# exit 0
-# }
+RUN_LOG=$(dirname $0)/run.log
 
-# stop_handler() {
-	# echo Stopping Tomcat...
-	# ${TOMCAT_HOME}/bin/catalina.sh stop
-# }
+echo "Executing run as user: $(whoami)" > $RUN_LOG
+echo "Starting liferay in: ${LIFERAY_HOME}" >> $RUN_LOG
+echo "with portal-setup-wizard.properties:" >> $RUN_LOG
+echo "####################################" >> $RUN_LOG
+cat ${LIFERAY_HOME}/portal-setup-wizard.properties >> $RUN_LOG
+echo "####################################" >> $RUN_LOG
 
 #Override LIFERAY_DEBUG from command line
-if [ "$1" != "" ]; then
-	LIFERAY_DEBUG=$1
+if [ -n "$1" ]; then
+	echo "Debug activated from command line" >> $RUN_LOG
+	LIFERAY_DEBUG=1
 fi
 
-#Increment count of container restarts
-FILE=$(dirname $0)/liferay_runs
-if [ -e "$FILE" ]; then
-	LIFERAY_RUN=$(cat $FILE)
+#Disables Liferay setup wizard if LIFERAY_NOWIZARD is set (useful to regenerate a new lep-as with an already existing lep-db)
+if [ -n "$LIFERAY_NOWIZARD" ]; then 
+	echo "Disabling Liferay wizard..." >> $RUN_LOG
+	echo "setup.wizard.enabled=false" >> ${LIFERAY_HOME}/portal-setup-wizard.properties
+	#sed -i 's/\s*setup.wizard.enabled\s*=\s*true/setup.wizard.enabled=false/' ${LIFERAY_HOME}/portal-setup-wizard.properties
 fi
-LIFERAY_RUN=$((LIFERAY_RUN + 1))
-echo $LIFERAY_RUN > $FILE
 
-#Stops ssh daemon
+#Stops ssh daemon (if running)
 service ssh stop
 
-#Executes only on first run
-if [ $LIFERAY_RUN -eq 1 ]; then
-	#if LIFERAY_NOWIZARD is not set, removes wizard properties file (enable wizard)
-	if [ "$LIFERAY_NOWIZARD" != "1" ]; then
-		rm -f ${LIFERAY_HOME}/portal-setup-wizard.properties
-	else
-		#Sets "liferay.home" wizard property
-		echo "liferay.home=$LIFERAY_HOME" >> ${LIFERAY_HOME}/portal-setup-wizard.properties
-	fi
-	
-	#Localhost certificate creation with openssl
-	#mkdir -p /var/cert/localhost
-	#openssl req -x509 -out ${SSL_HOME}/localhost.crt -keyout ${SSL_HOME}/localhost.key -newkey rsa:2048 -nodes -sha256 -subj '/CN=localhost' -extensions EXT -config <(printf "[dn]\nCN=localhost\n[req]\ndistinguished_name = dn\n[EXT]\nsubjectAltName=DNS:localhost\nkeyUsage=digitalSignature\nextendedKeyUsage=serverAuth")
-
-	#Generates untrusted local certificate in PKCS12 (open) format
-	$JAVA_HOME/bin/keytool -genkey -alias tomcat -keyalg RSA -storepass ${SSL_PWD} -keypass ${SSL_PWD} -dname "CN=CT, OU=Dev, O=CtLiv, L=LI, ST=LI, C=IT" -keystore ${SSL_HOME}/.keystore -storetype pkcs12
-	
-	#Generates untrusted local certificate
-	#$JAVA_HOME/bin/keytool -genkey -alias tomcat -keyalg RSA -storepass changeit -keypass changeit -dname "CN=CT, OU=Dev, O=CtLiv, L=LI, ST=LI, C=IT"	
-	#Converts keystore to PKCS12 (open) format
-	#$JAVA_HOME/bin/keytool -importkeystore -srckeystore ~/.keystore -destkeystore ~/.keystore -srcstorepass changeit -deststorepass changeit -deststoretype pkcs12
-fi
-
-if [ "$LIFERAY_DEBUG" != "" ]; then
+if [ -n "$LIFERAY_DEBUG" ]; then
+	echo "Enabling debug services..." >> $RUN_LOG
 	#Configure and launch ssh
 	sed -i 's/#*\s*PermitRootLogin .*/PermitRootLogin yes/' /etc/ssh/sshd_config
 	sed -i 's/#*\s*PubkeyAuthentication .*/PubkeyAuthentication no/' /etc/ssh/sshd_config
@@ -58,12 +34,13 @@ if [ "$LIFERAY_DEBUG" != "" ]; then
 	sed 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so@g' -i /etc/pam.d/sshd	
 	#Start ssh daemon
 	service ssh start
-	
+
 	#Define default host for JMX debugging 
 	if [ -z "$VM_HOST" ]; then 
-	  VM_HOST=localhost
+		VM_HOST=localhost
 	fi
-	
+	echo "Setting RMI server hostname to: ${VM_HOST}" >> $RUN_LOG
+
 	## (disabled) Runs jstatd endpoint on port 1098 for remote JVM monitoring (use SSH tunnel)
 	## Creates policy file
 	#policy=$(dirname $0)/jstatd.all.policy
@@ -72,7 +49,7 @@ if [ "$LIFERAY_DEBUG" != "" ]; then
 	#echo "};" >> $policy	
 	## Launch jstatd
 	#jstatd -p 1098 -J-Djava.security.policy=$(dirname $0)/jstatd.all.policy -J-Djava.net.preferIPv4Stack=true -J-Djava.rmi.server.hostname=${VM_HOST} &
-	
+
 	#Enables JMX endpoint (on port 1099)
 	OPTS="-Dcom.sun.management.jmxremote=true"
 	OPTS="$OPTS -Dcom.sun.management.jmxremote.ssl=false"
@@ -91,21 +68,27 @@ if [ "$LIFERAY_DEBUG" != "" ]; then
 fi
 
 #Enables custom jvm options 
-if [ -z "$JAVA_OPTS" ]; then 
-	echo
-	echo "No custom jvm startup options found"
-	echo
-else
+if [ -n "$JAVA_OPTS" ]; then 
 	export CATALINA_OPTS="$CATALINA_OPTS $JAVA_OPTS"
 fi
 	
-echo "Starting catalina with options: $CATALINA_OPTS"
-echo
+echo "Starting catalina with options: $CATALINA_OPTS" >> $RUN_LOG
 
 #PID file
 PIDFILE="$(dirname $0)/liferay_pid"
 
-# #Trap signals	
+# exit_handler() {
+	# echo Stopping Tomcat and exiting...
+	# ${TOMCAT_HOME}/bin/catalina.sh stop
+	# exit 0
+# }
+
+# stop_handler() {
+	# echo Stopping Tomcat...
+	# ${TOMCAT_HOME}/bin/catalina.sh stop
+# }
+
+# #Trap signals	(does not work as expected)
 # trap "exit_handler;" SIGHUP SIGINT SIGQUIT SIGTERM
 # trap "stop_handler;" SIGUSR1
 
@@ -122,12 +105,12 @@ PIDFILE="$(dirname $0)/liferay_pid"
 # done
 
 #Launch catalina
-echo Starting Tomcat...
+echo Starting Tomcat... >> $RUN_LOG
 while true
 do
 	#Saves PID
 	echo "$$" > "$PIDFILE"
-	${TOMCAT_HOME}/bin/catalina.sh run
+	$(ls -d ${LIFERAY_HOME}/tomcat*)/bin/catalina.sh run
 	if [ -e "$PIDFILE" ]; then
 		echo "Stop requested. Exiting..."
 		#Stop has been requested

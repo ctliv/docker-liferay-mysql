@@ -1,86 +1,88 @@
-FROM ubuntu:bionic
+ARG LIFERAY_URL=https://sourceforge.net/projects/lportal/files/Liferay%20Portal/7.1.1%20GA2/liferay-ce-portal-tomcat-7.1.1-ga2-20181112144637000.7z
+ARG LIFERAY_EXT=7z
+ARG LIFERAY_DIR=liferay-ce-portal-7.1.1-ga2
+FROM debian:stable-slim as liferay-setup
 
 MAINTAINER Cristiano Toncelli <ct.livorno@gmail.com>
 
-# Users and groups
-RUN echo "root:Docker!" | chpasswd
-# RUN groupadd -r tomcat && useradd -r -g tomcat tomcat
+ARG LIFERAY_URL
+ARG LIFERAY_EXT
+ARG LIFERAY_DIR
 
 # Install packages
 RUN apt-get update && \
-	apt-get install -y curl unzip ssh vim net-tools git telnet dtrx && \
+	apt-get install -y curl dtrx && \
 	apt-get clean
 	
-# Export TERM as "xterm"
-RUN echo -e "\nexport TERM=xterm" >> ~/.bashrc
-	
-# Install Java 8 JDK 
-RUN apt-get update && \
-	apt-get install -y openjdk-8-jdk && \
-	apt-get clean
-ENV JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
-ENV JRE_HOME=$JAVA_HOME/jre
-ENV	PATH=$PATH:$JAVA_HOME/bin
-
 # Install liferay
-ENV LIFERAY_BASE=/opt \
-	LIFERAY_DIR=liferay-ce-portal-7.1.1-ga2 \
-	TOMCAT_DIR=tomcat-9.0.10 \
-	LIFERAY_EXT=7z
-ENV LIFERAY_HOME=${LIFERAY_BASE}/${LIFERAY_DIR} \
-    TOMCAT_HOME=${LIFERAY_BASE}/${LIFERAY_DIR}/${TOMCAT_DIR} \
-	SCRIPT_HOME=${LIFERAY_BASE}/script \
-    SSL_HOME=${LIFERAY_BASE}/ssl \
-	SSL_PWD=changeit
+ENV LIFERAY_HOME=/opt/${LIFERAY_DIR} \
+	SCRIPT_HOME=/opt/script \
+    SSL_HOME=/opt/ssl
 RUN cd /tmp && \
 	curl -o ${LIFERAY_DIR}.${LIFERAY_EXT} -k -L -C - \
-	"https://sourceforge.net/projects/lportal/files/Liferay%20Portal/7.1.1%20GA2/liferay-ce-portal-tomcat-7.1.1-ga2-20181112144637000.7z" && \
-	dtrx ${LIFERAY_DIR}.${LIFERAY_EXT} && \
+	"${LIFERAY_URL}" && \
+	dtrx -n ${LIFERAY_DIR}.${LIFERAY_EXT} && \
 	mv ${LIFERAY_DIR} /opt && \
 	rm ${LIFERAY_DIR}.${LIFERAY_EXT} && \
 	mkdir -p ${LIFERAY_HOME}/deploy && \
 	mkdir -p ${SCRIPT_HOME} && \
 	mkdir -p ${SSL_HOME}
-	
-#Add variables to global profile
-RUN echo >> /etc/profile && \
-	echo "export JAVA_HOME=${JAVA_HOME}" >> /etc/profile && \
-	echo "export JRE_HOME=${JRE_HOME}" >> /etc/profile && \
-	echo "export LIFERAY_BASE=${LIFERAY_BASE}" >> /etc/profile && \
-	echo "export LIFERAY_DIR=${LIFERAY_DIR}" >> /etc/profile && \
-	echo "export TOMCAT_DIR=${TOMCAT_DIR}" >> /etc/profile && \
-	echo "export LIFERAY_HOME=${LIFERAY_HOME}" >> /etc/profile && \
-	echo "export TOMCAT_HOME=${TOMCAT_HOME}" >> /etc/profile && \
-	echo "export SCRIPT_HOME=${SCRIPT_HOME}" >> /etc/profile && \
-	echo "export SSL_HOME=${SSL_HOME}" >> /etc/profile && \
-	echo "export SSL_PWD=${SSL_PWD}" >> /etc/profile
 
-# Add latest version of language files (Liferay 6.2 only)
-# RUN mkdir ${TOMCAT_HOME}/webapps/ROOT/WEB-INF/classes/content
-# ADD lang/* ${TOMCAT_HOME}/webapps/ROOT/WEB-INF/classes/content/
-
-# Add symlinks to HOME dirs
-RUN ln -fs ${LIFERAY_HOME} /var/liferay && \
-	ln -fs ${TOMCAT_HOME} /var/tomcat
-	
-# Add configuration files to liferay home
-ADD conf/liferay/* ${LIFERAY_HOME}/
-
-# Add log4j custom configuration files
-ADD conf/log4j/* ${TOMCAT_HOME}/webapps/ROOT/WEB-INF/classes/META-INF/
-
-# Add Tomcat configuration files
-ADD conf/tomcat/* ${TOMCAT_HOME}/conf
-
-# Add plugins to auto-deploy directory
-# ADD deploy-build/* ${LIFERAY_HOME}/deploy/
+# Add configuration files
+COPY conf tmp/conf
+# Move configuration files
+RUN mv /tmp/conf/liferay/* ${LIFERAY_HOME}/ && \
+	mv /tmp/conf/log4j/* $(ls -d /opt/${LIFERAY_DIR}/tomcat*)/webapps/ROOT/WEB-INF/classes/META-INF/ && \
+	mv /tmp/conf/tomcat/* $(ls -d /opt/${LIFERAY_DIR}/tomcat*)/conf
 
 # Add startup scripts
-ADD script/* ${SCRIPT_HOME}/
+COPY script/* ${SCRIPT_HOME}/
 RUN chmod +x ${SCRIPT_HOME}/*.sh
+	
+#######################################################
+FROM debian:stable-slim
+
+ARG LIFERAY_DIR
+
+COPY --from=liferay-setup --chown=root:root /opt/ /opt/
+	
+# Install packages (for mkdir see: https://github.com/debuerreotype/docker-debian-artifacts/issues/24)
+RUN mkdir -p /usr/share/man/man1 && \
+	apt-get update && \
+	apt-get install -y openjdk-8-jdk-headless openssh-server && \
+	apt-get clean
+	
+ENV LIFERAY_HOME=/opt/${LIFERAY_DIR} \
+	SCRIPT_HOME=/opt/script \
+    SSL_HOME=/opt/ssl \
+	SSL_PWD=changeit
+	
+# Change root password
+# Export TERM as "xterm"
+# Add variables to global profile
+# Add symlinks to HOME dirs for easy access
+RUN echo "root:Docker!" | chpasswd && \
+    echo -e "\nexport TERM=xterm" >> ~/.bashrc && \
+	echo >> /etc/profile && \
+	echo "export LIFERAY_HOME=/opt/${LIFERAY_DIR}" >> /etc/profile && \
+	echo "export TOMCAT_HOME=$(ls -d /opt/${LIFERAY_DIR}/tomcat*)" >> /etc/profile && \
+	echo "export SCRIPT_HOME=/opt/script" >> /etc/profile && \
+	echo "export SSL_HOME=/opt/ssl" >> /etc/profile && \
+	echo "export SSL_PWD=${SSL_PWD}" >> /etc/profile && \
+	ln -s /opt/${LIFERAY_DIR} /var/liferay && \
+	ln -s $(ls -d /opt/${LIFERAY_DIR}/tomcat*) /var/tomcat
+
+# Preparation for first execution:
+# - Add liferay.home property to portal-setup-wizard.properties
+# - Substitute environment variables in server.xml
+# - Generate untrusted certificate for localhost in PKCS12 (open) format...
+RUN echo "liferay.home=$LIFERAY_HOME" >> ${LIFERAY_HOME}/portal-ext.properties && \
+	sed -i 's@${SSL_HOME}@'"${SSL_HOME}"'@' $(ls -d /opt/${LIFERAY_DIR}/tomcat*)/conf/server.xml && \
+	sed -i 's@${SSL_PWD}@'"${SSL_PWD}"'@' $(ls -d /opt/${LIFERAY_DIR}/tomcat*)/conf/server.xml && \
+	keytool -genkey -alias tomcat -keyalg RSA -storepass ${SSL_PWD} -keypass ${SSL_PWD} -dname "CN=CT, OU=Dev, O=CtLiv, L=LI, ST=LI, C=IT" -keystore ${SSL_HOME}/.keystore -storetype pkcs12
 
 # Ports
 EXPOSE 8080 8443
 
 # EXEC
-ENTRYPOINT ["/opt/script/run.sh"]
+CMD ["/opt/script/run.sh"]
