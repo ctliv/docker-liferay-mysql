@@ -1,0 +1,47 @@
+version: "3"
+services:
+  liferay:
+    container_name: lep-as
+    image: ctliv/liferay:7_1_2-GA3
+    depends_on:
+      - database
+      - mailrelay
+    ports:
+      - "80:8080" 
+      - "443:8443"
+      - "2222:22" 
+      - "1099:1099" 
+      - "8999:8999" 
+      - "11311:11311"
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
+    volumes:
+      - ./deploy:/var/liferay/deploy
+      - ./modules:/var/liferay/osgi/modules
+      - ./data:/opt/data
+#      - /etc/letsencrypt:/etc/letsencrypt
+    environment:
+      - LIFERAY_DEBUG=1
+#      - JAVA_OPTS=-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -XX:MaxRAMFraction=2 -Djava.util.concurrent.ForkJoinPool.common.parallelism=2  database:
+    container_name: lep-db
+    image: mysql:5.7
+    ports:
+      - "3306:3306"
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
+    environment:
+      - MYSQL_ROOT_PASSWORD=adminpwd
+      - MYSQL_USER=lportal
+      - MYSQL_PASSWORD=lportal
+      - MYSQL_DATABASE=lportal
+    command: --character-set-server=utf8 --collation-server=utf8_unicode_ci
+  mailrelay:
+    container_name: lep-mr
+    image: namshi/smtp:latest
+    ports:
+      - "2525:25"
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
