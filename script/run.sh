@@ -3,10 +3,10 @@
 RUN_LOG=$(dirname $0)/run.log
 
 echo "Executing run as user: $(whoami)" > $RUN_LOG
-echo "Starting liferay in: ${LIFERAY_HOME}" >> $RUN_LOG
+echo "Starting liferay in: /var/liferay" >> $RUN_LOG
 echo "with portal-setup-wizard.properties:" >> $RUN_LOG
 echo "####################################" >> $RUN_LOG
-cat ${LIFERAY_HOME}/portal-setup-wizard.properties >> $RUN_LOG
+cat /var/liferay/portal-setup-wizard.properties >> $RUN_LOG
 echo "####################################" >> $RUN_LOG
 
 #Override LIFERAY_DEBUG from command line
@@ -18,8 +18,8 @@ fi
 #Disables Liferay setup wizard if LIFERAY_NOWIZARD is set (useful to regenerate a new lep-as with an already existing lep-db)
 if [ -n "$LIFERAY_NOWIZARD" ]; then 
 	echo "Disabling Liferay wizard..." >> $RUN_LOG
-	echo "setup.wizard.enabled=false" >> ${LIFERAY_HOME}/portal-setup-wizard.properties
-	#sed -i 's/\s*setup.wizard.enabled\s*=\s*true/setup.wizard.enabled=false/' ${LIFERAY_HOME}/portal-setup-wizard.properties
+	echo "setup.wizard.enabled=false" >> /var/liferay/portal-setup-wizard.properties
+	#sed -i 's/\s*setup.wizard.enabled\s*=\s*true/setup.wizard.enabled=false/' /var/liferay/portal-setup-wizard.properties
 fi
 
 #Stops ssh daemon (if running)
@@ -110,7 +110,7 @@ while true
 do
 	#Saves PID
 	echo "$$" > "$PIDFILE"
-	$(ls -d ${LIFERAY_HOME}/tomcat*)/bin/catalina.sh run
+	/var/tomcat/bin/catalina.sh run
 	if [ -e "$PIDFILE" ]; then
 		echo "Stop requested. Exiting..."
 		#Stop has been requested
