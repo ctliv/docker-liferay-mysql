@@ -1,10 +1,17 @@
 ARG LIFERAY_URL=https://sourceforge.net/projects/lportal/files/Liferay%20Portal/7.1.2%20GA3/liferay-ce-portal-tomcat-7.1.2-ga3-20190107144105508.7z
+ARG JDK_URL=https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.2%2B9/OpenJDK11U-jdk_x64_linux_hotspot_11.0.2_9.tar.gz
+ARG SCRIPT_HOME=/opt/script
+ARG TLS_HOME=/opt/tls
+ARG TLS_PWD=changeit
 
 FROM debian:stable-slim as liferay-setup
 
 MAINTAINER Cristiano Toncelli <ct.livorno@gmail.com>
 
 ARG LIFERAY_URL
+ARG JDK_URL
+ARG SCRIPT_HOME
+ARG TLS_HOME
 
 # Install packages
 RUN apt-get update && \
@@ -12,42 +19,53 @@ RUN apt-get update && \
 	apt-get clean
 	
 # Install liferay
-ENV SCRIPT_HOME=/opt/script \
-    SSL_HOME=/opt/ssl
 RUN cd /tmp && \
+	rm -fr * && \
 	curl -o "${LIFERAY_URL##*/}" -k -L -C - "${LIFERAY_URL}" && \
 	dtrx -n "${LIFERAY_URL##*/}" && \
 	rm "${LIFERAY_URL##*/}" && \
 	mv $(ls -d /tmp/liferay*/liferay*) /opt && \
-	mkdir -p $(ls -d /opt/liferay*)/deploy && \
+	ln -s $(ls -d /opt/liferay*) /var/liferay && \
+	ln -s $(ls -d /opt/liferay*/tomcat*) /var/tomcat && \
+	mkdir -p /var/liferay/deploy && \
 	mkdir -p ${SCRIPT_HOME} && \
-	mkdir -p ${SSL_HOME}
+	mkdir -p ${TLS_HOME}
 
 # Add configuration files
 COPY conf tmp/conf
 # Move configuration files
-RUN mv /tmp/conf/liferay/* $(ls -d /opt/liferay*) && \
-	mv /tmp/conf/log4j/* $(ls -d /opt/liferay*/tomcat*)/webapps/ROOT/WEB-INF/classes/META-INF/ && \
-	mv /tmp/conf/tomcat/* $(ls -d /opt/liferay*/tomcat*)/conf
+RUN mv /tmp/conf/liferay/* /var/liferay && \
+	mv /tmp/conf/log4j/* /var/tomcat/webapps/ROOT/WEB-INF/classes/META-INF/ && \
+	mv /tmp/conf/tomcat/* /var/tomcat/conf
 
 # Add startup scripts
 COPY script/* ${SCRIPT_HOME}/
-RUN chmod +x ${SCRIPT_HOME}/*.sh
+RUN chmod -R +x ${SCRIPT_HOME}/*.sh
+
+# Install Java
+RUN cd /tmp && \
+	rm -fr * && \
+	curl -o "${JDK_URL##*/}" -k -L -C - "${JDK_URL}" && \
+	dtrx -n "${JDK_URL##*/}" && \
+	rm "${JDK_URL##*/}" && \
+	mkdir -p /usr/lib/jvm && \
+	mv */* /usr/lib/jvm
 	
 #######################################################
 FROM debian:stable-slim
 
-COPY --from=liferay-setup --chown=root:root /opt/ /opt/
-	
 # Install packages (for mkdir see: https://github.com/debuerreotype/docker-debian-artifacts/issues/24)
 RUN mkdir -p /usr/share/man/man1 && \
 	apt-get update && \
-	apt-get install -y openjdk-8-jdk-headless openssh-server && \
+	apt-get install -y openssh-server && \
 	apt-get clean
+
+COPY --from=liferay-setup --chown=root:root /opt/ /opt/
+COPY --from=liferay-setup --chown=root:root /usr/lib/jvm/ /usr/lib/jvm/
 	
-ENV SCRIPT_HOME=/opt/script \
-    SSL_HOME=/opt/ssl \
-	SSL_PWD=changeit
+ARG SCRIPT_HOME
+ARG TLS_HOME
+ARG TLS_PWD
 	
 # Change root password
 # Export TERM as "xterm"
@@ -59,19 +77,21 @@ RUN echo "root:Docker!" | chpasswd && \
 	echo "export LIFERAY_HOME=$(ls -d /opt/liferay*)" >> /etc/profile && \
 	echo "export TOMCAT_HOME=$(ls -d /opt/liferay*/tomcat*)" >> /etc/profile && \
 	echo "export SCRIPT_HOME=$SCRIPT_HOME" >> /etc/profile && \
-	echo "export SSL_HOME=$SSL_HOME" >> /etc/profile && \
-	echo "export SSL_PWD=$SSL_PWD" >> /etc/profile && \
+	echo "export TLS_HOME=$TLS_HOME" >> /etc/profile && \
+	echo "export TLS_PWD=$TLS_PWD" >> /etc/profile && \
 	ln -s $(ls -d /opt/liferay*) /var/liferay && \
-	ln -s $(ls -d /opt/liferay*/tomcat*) /var/tomcat
+	ln -s $(ls -d /opt/liferay*/tomcat*) /var/tomcat && \
+	for x in $(ls -d /usr/lib/jvm/*)/bin/*; do update-alternatives --install /usr/bin/$(basename $x) $(basename $x) $x 100; done && \
+	for x in $(ls -d /usr/lib/jvm/*)/bin/*; do update-alternatives --set $(basename $x) $x; done
 
 # Preparation for first execution:
 # - Add liferay.home property to portal-ext.properties
 # - Substitute environment variables in server.xml
 # - Generate untrusted certificate for localhost in PKCS12 (open) format...
-RUN echo "liferay.home=$(ls -d /opt/liferay*)" >> $(ls -d /opt/liferay*)/portal-ext.properties && \
-	sed -i 's@${SSL_HOME}@'"${SSL_HOME}"'@' $(ls -d /opt/liferay*/tomcat*)/conf/server.xml && \
-	sed -i 's@${SSL_PWD}@'"${SSL_PWD}"'@' $(ls -d /opt/liferay*/tomcat*)/conf/server.xml && \
-	keytool -genkey -alias tomcat -keyalg RSA -storepass ${SSL_PWD} -keypass ${SSL_PWD} -dname "CN=CT, OU=Dev, O=CtLiv, L=LI, ST=LI, C=IT" -keystore ${SSL_HOME}/.keystore -storetype pkcs12
+RUN echo "liferay.home=$(ls -d /opt/liferay*)" >> /var/liferay/portal-ext.properties && \
+	sed -i 's@${TLS_HOME}@'"${TLS_HOME}"'@' /var/tomcat/conf/server.xml && \
+	sed -i 's@${TLS_PWD}@'"${TLS_PWD}"'@' /var/tomcat/conf/server.xml && \
+	keytool -genkey -alias tomcat -keyalg RSA -storepass ${TLS_PWD} -keypass ${TLS_PWD} -dname "CN=CT, OU=Dev, O=CtLiv, L=LI, ST=LI, C=IT" -keystore ${TLS_HOME}/.keystore -storetype pkcs12
 
 # Ports
 EXPOSE 8080 8443
