@@ -31,6 +31,7 @@ ${SCRIPT_HOME}/stop.sh
 sleep 10
 
 #Rename default keystore
+rm ${SSL_HOME}/.keystore.org
 mv ${SSL_HOME}/.keystore ${SSL_HOME}/.keystore.org
 
 #Create keystore "cert_and_key.p12" from certbot generated certificate

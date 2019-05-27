@@ -1,5 +1,6 @@
-ARG LIFERAY_URL=https://sourceforge.net/projects/lportal/files/Liferay%20Portal/7.1.2%20GA3/liferay-ce-portal-tomcat-7.1.2-ga3-20190107144105508.7z
-ARG JDK_URL=https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.2%2B9/OpenJDK11U-jdk_x64_linux_hotspot_11.0.2_9.tar.gz
+ARG LIFERAY_URL=https://sourceforge.net/projects/lportal/files/Liferay%20Portal/7.1.3%20GA4/liferay-ce-portal-tomcat-7.1.3-ga4-20190508171117552.7z
+ARG JDK_URL=https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u212-b03/OpenJDK8U-jdk_x64_linux_hotspot_8u212b03.tar.gz
+#ARG JDK_URL=https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.3%2B7/OpenJDK11U-jdk_x64_linux_hotspot_11.0.3_7.tar.gz
 ARG SCRIPT_HOME=/opt/script
 ARG TLS_HOME=/opt/tls
 ARG TLS_PWD=changeit
@@ -94,7 +95,7 @@ RUN echo "liferay.home=$(ls -d /opt/liferay*)" >> /var/liferay/portal-ext.proper
 	keytool -genkey -alias tomcat -keyalg RSA -storepass ${TLS_PWD} -keypass ${TLS_PWD} -dname "CN=CT, OU=Dev, O=CtLiv, L=LI, ST=LI, C=IT" -keystore ${TLS_HOME}/.keystore -storetype pkcs12
 
 # Ports
-EXPOSE 8080 8443
+EXPOSE 8080 8443 22 1099 8999 11311
 
 # EXEC
 CMD ["/opt/script/run.sh"]
