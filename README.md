@@ -10,6 +10,8 @@ Tags are "latest" or Liferay version (e.g.: "7_1_3-GA4")
 ctliv/liferay:latest 
 ctliv/liferay:7_1_3-GA4
 ...
+ctliv/liferay:7_0_0-GA1
+ctliv/liferay:6_2_5-GA6
 ```
 
 ## Git repo:
