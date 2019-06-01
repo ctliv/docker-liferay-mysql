@@ -2,7 +2,7 @@ version: "3"
 services:
   liferay:
     container_name: lep-as
-    image: ctliv/liferay:latest
+    image: ctliv/liferay:7_1_3-GA4
     depends_on:
       - database
       - mailrelay
@@ -22,8 +22,8 @@ services:
       - ./data:/opt/data
 #      - /etc/letsencrypt:/etc/letsencrypt
     environment:
-      - LIFERAY_DEBUG=1
-#      - JAVA_OPTS=-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -XX:MaxRAMFraction=2 -Djava.util.concurrent.ForkJoinPool.common.parallelism=2  database:
+      - LIFERAY_DEBUG=true
+      - JAVA_OPTS=-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -XX:MaxRAMFraction=2 -Djava.util.concurrent.ForkJoinPool.common.parallelism=2  database:
   database:
     container_name: lep-db
     image: mysql:5.7

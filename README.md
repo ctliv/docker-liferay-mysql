@@ -3,19 +3,13 @@ Liferay CE on Tomcat with MySql DB
 
 Docker registry: https://hub.docker.com/r/ctliv/liferay/
 
-## Tags (Liferay versions):
+## Tags:
+Tags are "latest" or Liferay version (e.g.: "7_1_3-GA4")
 
 ```
 ctliv/liferay:latest 
-ctliv/liferay:7_1_0-GA1
-ctliv/liferay:7_0_6-GA7
-ctliv/liferay:7_0_5-GA6
-ctliv/liferay:7_0_4-GA5
-ctliv/liferay:7_0_3-GA4
-ctliv/liferay:7_0_2-GA3
-ctliv/liferay:7_0_1-GA2
-ctliv/liferay:7_0_0-GA1
-ctliv/liferay:6_2_5-GA6
+ctliv/liferay:7_1_3-GA4
+...
 ```
 
 ## Git repo:
@@ -28,15 +22,10 @@ cd docker-liferay-mysql
 ## Use:
 See: https://docs.docker.com/compose/reference/overview/
 
-### Launch latest version:
+### Launch version:
 ```
 docker-compose up -d
 ```
-
-### Launch specific version (<tag>):
-```
-docker-compose -f docker-compose-<tag>.yml up -d
-``` 
 
 ### Lifecycle commands
 ```
@@ -57,5 +46,5 @@ docker-compose down
 - (Liferay 6) Deploy wars in "deploy" folder
 - (Liferay 7) Deploy osgi bundles in "deploy" folder
 - (Liferay 7) Remove installed osgi bundles from "modules" folder
-- Add custom files to "data" folder (mapped as "/opt/data" inside lep-as)
+- Add custom files to "data" folder (mapped as "/opt/data" inside container "lep-as")
 
