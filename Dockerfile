@@ -1,6 +1,6 @@
 ARG LIFERAY_URL=https://sourceforge.net/projects/lportal/files/Liferay%20Portal/7.1.3%20GA4/liferay-ce-portal-tomcat-7.1.3-ga4-20190508171117552.7z
-ARG JDK_URL=https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u212-b03/OpenJDK8U-jdk_x64_linux_hotspot_8u212b03.tar.gz
-#ARG JDK_URL=https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.3%2B7/OpenJDK11U-jdk_x64_linux_hotspot_11.0.3_7.tar.gz
+#ARG JDK_URL=https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u212-b03/OpenJDK8U-jdk_x64_linux_hotspot_8u212b03.tar.gz
+ARG JDK_URL=https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.3%2B7/OpenJDK11U-jdk_x64_linux_hotspot_11.0.3_7.tar.gz
 ARG SCRIPT_HOME=/opt/script
 ARG TLS_HOME=/opt/tls
 ARG TLS_PWD=changeit
@@ -14,9 +14,12 @@ ARG JDK_URL
 ARG SCRIPT_HOME
 ARG TLS_HOME
 
+# Allow non-free packages in apt-get (needed for msttcorefonts)
+RUN sed -i 's@ main@ main non-free contrib@' /etc/apt/sources.list
+
 # Install packages
 RUN apt-get update && \
-	apt-get install -y curl dtrx && \
+	apt-get install -y curl dtrx ttf-mscorefonts-installer && \
 	apt-get clean
 	
 # Install liferay
@@ -43,14 +46,16 @@ RUN mv /tmp/conf/liferay/* /var/liferay && \
 COPY script/* ${SCRIPT_HOME}/
 RUN chmod -R +x ${SCRIPT_HOME}/*.sh
 
-# Install Java
+# Install Java and copy msttfcorefonts
 RUN cd /tmp && \
 	rm -fr * && \
 	curl -o "${JDK_URL##*/}" -k -L -C - "${JDK_URL}" && \
 	dtrx -n "${JDK_URL##*/}" && \
 	rm "${JDK_URL##*/}" && \
 	mkdir -p /usr/lib/jvm && \
-	mv */* /usr/lib/jvm
+	mv */* /usr/lib/jvm && \
+	mkdir -p $(ls -d /usr/lib/jvm/jdk*)/jre/lib/fonts && \
+	cp /usr/share/fonts/truetype/msttcorefonts/* $(ls -d /usr/lib/jvm/jdk*)/jre/lib/fonts
 	
 #######################################################
 FROM debian:stable-slim
