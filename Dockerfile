@@ -1,4 +1,4 @@
-ARG LIFERAY_URL=https://sourceforge.net/projects/lportal/files/Liferay%20Portal/7.1.3%20GA4/liferay-ce-portal-tomcat-7.1.3-ga4-20190508171117552.7z
+ARG LIFERAY_URL=https://sourceforge.net/projects/lportal/files/Liferay%20Portal/7.2.0%20GA1/liferay-ce-portal-tomcat-7.2.0-ga1-20190531153709761.7z
 #ARG JDK_URL=https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u212-b03/OpenJDK8U-jdk_x64_linux_hotspot_8u212b03.tar.gz
 ARG JDK_URL=https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.3%2B7/OpenJDK11U-jdk_x64_linux_hotspot_11.0.3_7.tar.gz
 ARG SCRIPT_HOME=/opt/script
@@ -103,4 +103,5 @@ RUN echo "liferay.home=$(ls -d /opt/liferay*)" >> /var/liferay/portal-ext.proper
 EXPOSE 8080 8443 22 1099 8999 11311
 
 # EXEC
-CMD ["/opt/script/run.sh"]
+# Waits max 30 secs for DB to be up, then runs
+CMD ["/opt/script/wait-for-it.sh", "lep-db:3306", "-t", "30", "--", "/opt/script/run.sh"]
