@@ -1,5 +1,4 @@
 ARG LIFERAY_URL=https://sourceforge.net/projects/lportal/files/Liferay%20Portal/7.2.0%20GA1/liferay-ce-portal-tomcat-7.2.0-ga1-20190531153709761.7z
-#ARG JDK_URL=https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u212-b03/OpenJDK8U-jdk_x64_linux_hotspot_8u212b03.tar.gz
 ARG JDK_URL=https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.3%2B7/OpenJDK11U-jdk_x64_linux_hotspot_11.0.3_7.tar.gz
 ARG SCRIPT_HOME=/opt/script
 ARG TLS_HOME=/opt/tls
@@ -14,12 +13,9 @@ ARG JDK_URL
 ARG SCRIPT_HOME
 ARG TLS_HOME
 
-# Allow non-free packages in apt-get (needed for msttcorefonts)
-RUN sed -i 's@ main@ main non-free contrib@' /etc/apt/sources.list
-
 # Install packages
 RUN apt-get update && \
-	apt-get install -y curl dtrx ttf-mscorefonts-installer && \
+	apt-get install -y curl dtrx && \
 	apt-get clean
 	
 # Install liferay
@@ -46,24 +42,25 @@ RUN mv /tmp/conf/liferay/* /var/liferay && \
 COPY script/* ${SCRIPT_HOME}/
 RUN chmod -R +x ${SCRIPT_HOME}/*.sh
 
-# Install Java and copy msttfcorefonts
+# Install Java
 RUN cd /tmp && \
 	rm -fr * && \
 	curl -o "${JDK_URL##*/}" -k -L -C - "${JDK_URL}" && \
 	dtrx -n "${JDK_URL##*/}" && \
 	rm "${JDK_URL##*/}" && \
 	mkdir -p /usr/lib/jvm && \
-	mv */* /usr/lib/jvm && \
-	mkdir -p $(ls -d /usr/lib/jvm/jdk*)/jre/lib/fonts && \
-	cp /usr/share/fonts/truetype/msttcorefonts/* $(ls -d /usr/lib/jvm/jdk*)/jre/lib/fonts
-	
+	mv */* /usr/lib/jvm
+
 #######################################################
 FROM debian:stable-slim
+
+# Allow non-free packages in apt-get (needed if ttf-mscorefonts-installer have to be installed)
+#RUN sed -i 's@ main@ main non-free contrib@' /etc/apt/sources.list
 
 # Install packages (for mkdir see: https://github.com/debuerreotype/docker-debian-artifacts/issues/24)
 RUN mkdir -p /usr/share/man/man1 && \
 	apt-get update && \
-	apt-get install -y openssh-server && \
+	apt-get install -y openssh-server libfontconfig1 && \
 	apt-get clean
 
 COPY --from=liferay-setup --chown=root:root /opt/ /opt/
@@ -77,6 +74,7 @@ ARG TLS_PWD
 # Export TERM as "xterm"
 # Add variables to global profile
 # Add symlinks to HOME dirs for easy access
+# Registers java in update-alternatives
 RUN echo "root:Docker!" | chpasswd && \
     echo -e "\nexport TERM=xterm" >> ~/.bashrc && \
 	echo >> /etc/profile && \
