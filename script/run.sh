@@ -22,11 +22,10 @@ if [ -n "$LIFERAY_NOWIZARD" ]; then
 	#sed -i 's/\s*setup.wizard.enabled\s*=\s*true/setup.wizard.enabled=false/' /var/liferay/portal-setup-wizard.properties
 fi
 
-#Stops ssh daemon (if running)
-service ssh stop
-
 if [ -n "$LIFERAY_DEBUG" ]; then
 	echo "Enabling debug services..." >> $RUN_LOG
+	#Stops ssh daemon (if running)
+	service ssh stop
 	#Configure and launch ssh
 	sed -i 's/#*\s*PermitRootLogin .*/PermitRootLogin yes/' /etc/ssh/sshd_config
 	sed -i 's/#*\s*PubkeyAuthentication .*/PubkeyAuthentication no/' /etc/ssh/sshd_config
@@ -55,13 +54,11 @@ if [ -n "$LIFERAY_DEBUG" ]; then
 	OPTS="$OPTS -Dcom.sun.management.jmxremote.ssl=false"
 	OPTS="$OPTS -Dcom.sun.management.jmxremote.authenticate=false"
 	OPTS="$OPTS -Dcom.sun.management.jmxremote.port=1099"
-	OPTS="$OPTS -Dcom.sun.management.jmxremote.rmi.port=1099"
-	OPTS="$OPTS -Djava.rmi.server.hostname=${VM_HOST}"
+	#OPTS="$OPTS -Dcom.sun.management.jmxremote.rmi.port=1099"
+	#OPTS="$OPTS -Djava.rmi.server.hostname=${VM_HOST}"
 
-	#Enables jpda remote debugging (same as "export JPDA_ADDRESS=8999 && export JPDA_TRANSPORT=dt_socket && ${TOMCAT_HOME}/bin/catalina.sh jpda run")
-	OPTS="$OPTS -Xdebug -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=8999 "
-	#Alternative
-	#OPTS="$OPTS -Xdebug --Xrunjdwp:server=y,transport=dt_socket,address=8999,suspend=n "
+	#Enables remote debugging (https://www.baeldung.com/java-application-remote-debugging)
+	OPTS="$OPTS -Xdebug -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:8999 "
 
 	#Exports configuration
 	export CATALINA_OPTS="$CATALINA_OPTS $OPTS"
