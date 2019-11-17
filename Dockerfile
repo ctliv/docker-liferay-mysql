@@ -60,7 +60,7 @@ FROM debian:stable-slim
 # Install packages (for mkdir see: https://github.com/debuerreotype/docker-debian-artifacts/issues/24)
 RUN mkdir -p /usr/share/man/man1 && \
 	apt-get update && \
-	apt-get install -y openssh-server libfontconfig1 && \
+	apt-get install -y openssh-server libfontconfig1 cron && \
 	apt-get clean
 
 COPY --from=liferay-setup --chown=root:root /opt/ /opt/
@@ -75,6 +75,7 @@ ARG TLS_PWD
 # Add variables to global profile
 # Add symlinks to HOME dirs for easy access
 # Registers java in update-alternatives
+# Add cleanup script to crontab
 RUN echo "root:Docker!" | chpasswd && \
     echo -e "\nexport TERM=xterm" >> ~/.bashrc && \
 	echo >> /etc/profile && \
@@ -86,7 +87,8 @@ RUN echo "root:Docker!" | chpasswd && \
 	ln -s $(ls -d /opt/liferay*) /var/liferay && \
 	ln -s $(ls -d /opt/liferay*/tomcat*) /var/tomcat && \
 	for x in $(ls -d /usr/lib/jvm/*)/bin/*; do update-alternatives --install /usr/bin/$(basename $x) $(basename $x) $x 100; done && \
-	for x in $(ls -d /usr/lib/jvm/*)/bin/*; do update-alternatives --set $(basename $x) $x; done
+	for x in $(ls -d /usr/lib/jvm/*)/bin/*; do update-alternatives --set $(basename $x) $x; done && \
+	crontab /opt/script/crontab.txt
 
 # Preparation for first execution:
 # - Add liferay.home property to portal-ext.properties
