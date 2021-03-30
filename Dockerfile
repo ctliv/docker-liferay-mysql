@@ -1,12 +1,12 @@
-ARG LIFERAY_URL=https://sourceforge.net/projects/lportal/files/Liferay%20Portal/7.3.5%20GA6/liferay-ce-portal-tomcat-7.3.5-ga6-20200930172312275.7z
-ARG JDK_URL=https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.8%2B10/OpenJDK11U-jdk_x64_linux_hotspot_11.0.8_10.tar.gz
+ARG LIFERAY_URL=https://github.com/liferay/liferay-portal/releases/download/7.3.6-ga7/liferay-ce-portal-tomcat-7.3.6-ga7-20210301155526191.1.7z
+ARG JDK_URL=https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.10%2B9/OpenJDK11U-jdk_x64_linux_hotspot_11.0.10_9.tar.gz
 ARG SCRIPT_HOME=/opt/script
 ARG TLS_HOME=/opt/tls
 ARG TLS_PWD=changeit
 
 FROM debian:stable-slim as liferay-setup
 
-MAINTAINER Cristiano Toncelli <ct.livorno@gmail.com>
+LABEL maintainer="Cristiano Toncelli <ct.livorno@gmail.com>"
 
 ARG LIFERAY_URL
 ARG JDK_URL
@@ -17,7 +17,7 @@ ARG TLS_HOME
 RUN apt-get update && \
 	apt-get install -y curl dtrx && \
 	apt-get clean
-	
+
 # Install liferay
 RUN cd /tmp && \
 	rm -fr * && \
@@ -65,11 +65,11 @@ RUN mkdir -p /usr/share/man/man1 && \
 
 COPY --from=liferay-setup --chown=root:root /opt/ /opt/
 COPY --from=liferay-setup --chown=root:root /usr/lib/jvm/ /usr/lib/jvm/
-	
+
 ARG SCRIPT_HOME
 ARG TLS_HOME
 ARG TLS_PWD
-	
+
 # Change root password
 # Export TERM as "xterm"
 # Add variables to global profile
@@ -77,7 +77,7 @@ ARG TLS_PWD
 # Registers java in update-alternatives
 # Add cleanup script to crontab
 RUN echo "root:Docker!" | chpasswd && \
-    echo -e "\nexport TERM=xterm" >> ~/.bashrc && \
+	echo -e "\nexport TERM=xterm" >> ~/.bashrc && \
 	echo >> /etc/profile && \
 	echo "export LIFERAY_HOME=$(ls -d /opt/liferay*)" >> /etc/profile && \
 	echo "export TOMCAT_HOME=$(ls -d /opt/liferay*/tomcat*)" >> /etc/profile && \
