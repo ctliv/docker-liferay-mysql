@@ -2,7 +2,7 @@ version: "3"
 services:
   liferay:
     container_name: lep-as
-    image: ctliv/liferay:7_2_0-GA1
+    image: ctliv/liferay:latest
     depends_on:
       - database
       - mailrelay
