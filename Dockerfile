@@ -1,5 +1,5 @@
-ARG LIFERAY_URL=https://github.com/liferay/liferay-portal/releases/download/7.3.6-ga7/liferay-ce-portal-tomcat-7.3.6-ga7-20210301155526191.1.7z
-ARG JDK_URL=https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.10%2B9/OpenJDK11U-jdk_x64_linux_hotspot_11.0.10_9.tar.gz
+ARG LIFERAY_URL=https://github.com/liferay/liferay-portal/releases/download/7.4.0-ga1/liferay-ce-portal-tomcat-7.4.0-ga1-20210419204607406.7z
+ARG JDK_URL=https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.11%2B9/OpenJDK11U-jdk_x64_linux_hotspot_11.0.11_9.tar.gz
 ARG SCRIPT_HOME=/opt/script
 ARG TLS_HOME=/opt/tls
 ARG TLS_PWD=changeit
