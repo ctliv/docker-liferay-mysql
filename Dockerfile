@@ -1,5 +1,5 @@
-ARG LIFERAY_URL=https://github.com/liferay/liferay-portal/releases/download/7.4.2-ga3/liferay-ce-portal-tomcat-7.4.2-ga3-20210728053338694.7z
-ARG JDK_URL=https://github.com/adoptium/temurin11-binaries/releases/download/jdk-11.0.12%2B7/OpenJDK11U-jdk_x64_linux_hotspot_11.0.12_7.tar.gz
+ARG LIFERAY_URL=https://github.com/liferay/liferay-portal/releases/download/7.4.3.4-ga4/liferay-ce-portal-tomcat-7.4.3.4-ga4-20211020095956970.7z
+ARG JDK_URL=https://github.com/adoptium/temurin11-binaries/releases/download/jdk-11.0.13%2B8/OpenJDK11U-jdk_x64_linux_hotspot_11.0.13_8.tar.gz
 ARG SCRIPT_HOME=/opt/script
 ARG TLS_HOME=/opt/tls
 ARG TLS_PWD=changeit
