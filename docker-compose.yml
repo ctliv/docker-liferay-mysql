@@ -1,17 +1,18 @@
-version: "3"
+version: "3.9"
 services:
   liferay:
     container_name: lep-as
-    image: ctliv/liferay:latest
+    build: .
+    image: ctliv/liferay:7.4.3.6-ga6
     depends_on:
       - database
       - mailrelay
     ports:
-      - "80:8080" 
+      - "80:8080"
       - "443:8443"
-      - "2222:22" 
-      - "1099:1099" 
-      - "8999:8999" 
+      - "2222:22"
+      - "1099:1099"
+      - "8999:8999"
       - "11311:11311"
     dns:
       - 8.8.8.8
@@ -20,10 +21,10 @@ services:
       - ./deploy:/var/liferay/deploy
       - ./modules:/var/liferay/osgi/modules
       - ./data:/opt/data
-#      - /etc/letsencrypt:/etc/letsencrypt
+    #      - /etc/letsencrypt:/etc/letsencrypt
     environment:
       - LIFERAY_DEBUG=true
-#      - JAVA_OPTS=-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -XX:MaxRAMFraction=2 -Djava.util.concurrent.ForkJoinPool.common.parallelism=2  database:
+  #      - JAVA_OPTS=-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -XX:MaxRAMFraction=2 -Djava.util.concurrent.ForkJoinPool.common.parallelism=2  database:
   database:
     container_name: lep-db
     image: mysql:5.7
