@@ -1,6 +1,8 @@
 Liferay CE on Tomcat with MySQL DB
 ==================================
 
+# Report is discontinued
+
 ## Registry:
 
 https://hub.docker.com/r/ctliv/liferay
