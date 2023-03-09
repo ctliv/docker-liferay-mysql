@@ -1,7 +1,7 @@
 Liferay CE on Tomcat with MySQL DB
 ==================================
 
-# Report is discontinued
+# ** DISCONTINUED ** 
 
 ## Registry:
 
